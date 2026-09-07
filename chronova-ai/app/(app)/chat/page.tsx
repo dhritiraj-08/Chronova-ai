@@ -40,7 +40,14 @@ const WELCOME: Message = {
   time: new Date(),
 };
 
-const FALLBACK_ASSISTANT_TEXT = "I've updated your schedule. Check the calendar to see the changes.";
+// Shown only when the model actually proposed a timetable change but gave no
+// surrounding explanation text (rare, but happens with some free-tier models).
+const FALLBACK_ASSISTANT_TEXT_WITH_TIMETABLE = "I've updated your schedule. Check the calendar to see the changes.";
+// Shown when the model's response had no usable text AND no timetable block —
+// i.e. it just failed to answer. Saying "I've updated your schedule" here would
+// be false (nothing was updated), which used to make every failed reply look
+// identical regardless of what was asked.
+const FALLBACK_ASSISTANT_TEXT_NO_CONTENT = "Sorry, I didn't quite catch that — could you rephrase your question?";
 
 // Strips the <timetable_data> JSON block out of an assistant message so only the
 // natural-language explanation is shown, keeping any text that comes before OR
@@ -57,6 +64,7 @@ const FALLBACK_ASSISTANT_TEXT = "I've updated your schedule. Check the calendar 
 // the final response really did contain no natural language at all.
 function renderMarkdown(text: string, isStreaming: boolean = false) {
   const fullBlockMatch = text.match(/<timetable_data>[\s\S]*?<\/timetable_data>/);
+  const hadTimetable = !!fullBlockMatch || text.includes("<timetable_data>");
   let cleanText: string;
   if (fullBlockMatch) {
     cleanText = text.replace(fullBlockMatch[0], "").trim();
@@ -67,7 +75,7 @@ function renderMarkdown(text: string, isStreaming: boolean = false) {
 
   if (!cleanText) {
     if (isStreaming) return "";
-    cleanText = FALLBACK_ASSISTANT_TEXT;
+    cleanText = hadTimetable ? FALLBACK_ASSISTANT_TEXT_WITH_TIMETABLE : FALLBACK_ASSISTANT_TEXT_NO_CONTENT;
   }
 
   return cleanText
@@ -99,6 +107,9 @@ export default function ChatPage() {
   const [activeConversationId, setActiveConversationId] = useState<string>("");
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  // Per-message feedback for the "Apply Changes" button, shown inline instead
+  // of a browser alert() — keyed by message id.
+  const [applyStatus, setApplyStatus] = useState<Record<string, "success" | "none">>({});
   const bottomRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -688,16 +699,16 @@ export default function ChatPage() {
                             paddingTop: "8px",
                             borderTop: "1px solid var(--c-border-1)"
                           }}>
-                            <button 
+                            <button
                               onClick={() => {
                                 if (parsedEvents) {
                                   setEvents(parsedEvents);
-                                  alert("AI study schedule changes applied successfully!");
+                                  setApplyStatus(prev => ({ ...prev, [msg.id]: "success" }));
                                 } else {
-                                  alert("No new timetable proposed in this message.");
+                                  setApplyStatus(prev => ({ ...prev, [msg.id]: "none" }));
                                 }
                               }}
-                              className="btn btn-primary" 
+                              className="btn btn-primary"
                               style={{ fontSize: "11px", padding: "4px 10px", borderRadius: "var(--r-md)", background: "var(--c-accent-dark)", color: "#FFFFFF", borderColor: "var(--c-accent-dark)" }}
                             >
                               Apply Changes
@@ -721,16 +732,28 @@ export default function ChatPage() {
                             >
                               Explain
                             </button>
-                            <button 
+                            <button
                               onClick={(e) => {
                                 const target = e.currentTarget.parentElement;
                                 if (target) target.style.display = "none";
                               }}
-                              className="btn btn-secondary" 
+                              className="btn btn-secondary"
                               style={{ fontSize: "11px", padding: "4px 10px", borderRadius: "var(--r-md)" }}
                             >
                               Dismiss
                             </button>
+                          </div>
+                        )}
+
+                        {/* Inline feedback for "Apply Changes" — replaces the old alert() popup */}
+                        {applyStatus[msg.id] === "success" && (
+                          <div style={{ display: "flex", alignItems: "center", gap: "5px", marginTop: "6px", fontSize: "11px", color: "#047857", fontWeight: 600 }}>
+                            <Check size={12} /> Schedule updated — check your calendar to see the changes.
+                          </div>
+                        )}
+                        {applyStatus[msg.id] === "none" && (
+                          <div style={{ display: "flex", alignItems: "center", gap: "5px", marginTop: "6px", fontSize: "11px", color: "var(--c-text-secondary)" }}>
+                            <HelpCircle size={12} /> No new timetable was proposed in this message — nothing to apply.
                           </div>
                         )}
                       </div>

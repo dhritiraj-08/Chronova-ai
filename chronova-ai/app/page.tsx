@@ -364,16 +364,67 @@ export default function LandingPage() {
         </section>
 
         {/* ──────────────── FOOTER ──────────────── */}
-        <footer style={{ borderTop: "1px solid var(--c-border-1)", padding: "32px 0", background: "var(--c-surface-0)" }}>
-          <div className="container" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "16px" }}>
-            <Logo size={22} />
-            <p style={{ fontSize: "12px", color: "var(--c-text-secondary)", fontWeight: 500 }}>
-              © 2026 Chronova AI · Built for students everywhere
-            </p>
-            <div style={{ display: "flex", gap: "4px" }}>
-              {["Privacy", "Terms", "Contact"].map(l => (
-                <a key={l} href="#" className="btn btn-ghost" style={{ fontSize: "12px", padding: "4px 8px", fontWeight: 500 }}>{l}</a>
-              ))}
+        <footer style={{ borderTop: "1px solid var(--c-border-1)", background: "var(--c-surface-0)" }}>
+          <div className="container" style={{ padding: "56px 0 28px" }}>
+            <div
+              style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr 1fr 1fr", gap: "32px", paddingBottom: "40px" }}
+              className="footer-grid"
+            >
+              {/* Brand column */}
+              <div>
+                <Logo size={24} />
+                <p style={{ fontSize: "13px", color: "var(--c-text-secondary)", lineHeight: 1.6, marginTop: "14px", maxWidth: "260px" }}>
+                  The AI academic scheduler that understands your life, not just your syllabus.
+                </p>
+              </div>
+
+              {/* Product column */}
+              <div>
+                <p style={{ fontSize: "11px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", color: "var(--c-text-tertiary)", marginBottom: "14px" }}>
+                  Product
+                </p>
+                <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                  {NAV_LINKS.map(l => (
+                    <a key={l.label} href={l.href} style={{ fontSize: "13px", color: "var(--c-text-secondary)", textDecoration: "none" }}>
+                      {l.label}
+                    </a>
+                  ))}
+                </div>
+              </div>
+
+              {/* Company column */}
+              <div>
+                <p style={{ fontSize: "11px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", color: "var(--c-text-tertiary)", marginBottom: "14px" }}>
+                  Company
+                </p>
+                <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                  <Link href="/signup" style={{ fontSize: "13px", color: "var(--c-text-secondary)", textDecoration: "none" }}>Get Started</Link>
+                  <Link href="/login" style={{ fontSize: "13px", color: "var(--c-text-secondary)", textDecoration: "none" }}>Sign In</Link>
+                  <a href="mailto:support@chronova.ai" style={{ fontSize: "13px", color: "var(--c-text-secondary)", textDecoration: "none" }}>Contact</a>
+                </div>
+              </div>
+
+              {/* Legal column */}
+              <div>
+                <p style={{ fontSize: "11px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", color: "var(--c-text-tertiary)", marginBottom: "14px" }}>
+                  Legal
+                </p>
+                <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                  <Link href="/privacy" style={{ fontSize: "13px", color: "var(--c-text-secondary)", textDecoration: "none" }}>Privacy Policy</Link>
+                  <Link href="/terms" style={{ fontSize: "13px", color: "var(--c-text-secondary)", textDecoration: "none" }}>Terms of Service</Link>
+                </div>
+              </div>
+            </div>
+
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "12px", paddingTop: "24px", borderTop: "1px solid var(--c-border-1)" }}>
+              <p style={{ fontSize: "12px", color: "var(--c-text-tertiary)", fontWeight: 500 }}>
+                © 2026 Chronova AI · Built for students everywhere
+              </p>
+              <div style={{ display: "flex", gap: "4px" }}>
+                <Link href="/privacy" className="btn btn-ghost" style={{ fontSize: "12px", padding: "4px 8px", fontWeight: 500 }}>Privacy</Link>
+                <Link href="/terms" className="btn btn-ghost" style={{ fontSize: "12px", padding: "4px 8px", fontWeight: 500 }}>Terms</Link>
+                <a href="mailto:support@chronova.ai" className="btn btn-ghost" style={{ fontSize: "12px", padding: "4px 8px", fontWeight: 500 }}>Contact</a>
+              </div>
             </div>
           </div>
         </footer>
@@ -389,6 +440,11 @@ export default function LandingPage() {
             .responsive-institutions-grid {
               grid-template-columns: 1fr !important;
               gap: 30px !important;
+            }
+          }
+          @media (max-width: 700px) {
+            .footer-grid {
+              grid-template-columns: 1fr 1fr !important;
             }
           }
         `}</style>

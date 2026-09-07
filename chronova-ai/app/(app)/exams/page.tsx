@@ -1,9 +1,29 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, X, Calendar, BookOpen, AlertCircle, Trash2, Sparkles, Check, ChevronRight } from "lucide-react";
+import { Plus, X, Calendar, BookOpen, AlertCircle, Trash2, Sparkles, Check, ChevronRight, Clock, MapPin, Award } from "lucide-react";
 import { useScheduleStore, Exam } from "@/lib/store/scheduleStore";
 import { createClient } from "@/lib/supabase/client";
+
+// "14:30" -> "2:30 PM"
+function fmtTime(time: string): string {
+  const [hStr, mStr] = time.split(":");
+  const h = parseInt(hStr, 10);
+  const m = mStr || "00";
+  if (isNaN(h)) return time;
+  const ampm = h >= 12 ? "PM" : "AM";
+  const displayH = h > 12 ? h - 12 : h === 0 ? 12 : h;
+  return `${displayH}:${m} ${ampm}`;
+}
+
+// 150 -> "2h 30m", 60 -> "1h", 45 -> "45m"
+function fmtDuration(minutes: number): string {
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  if (h === 0) return `${m}m`;
+  if (m === 0) return `${h}h`;
+  return `${h}h ${m}m`;
+}
 
 export default function ExamsPage() {
   const { 
@@ -43,6 +63,12 @@ export default function ExamsPage() {
     name: "",
     subject: "Mathematics",
     date: "",
+    endDate: "",
+    examTime: "",
+    durationMinutes: 180,
+    venue: "",
+    examType: "Final Exam" as "Internal Assessment" | "Final Exam" | "Mid-term" | "Quiz" | "Practical",
+    totalMarks: "" as string | number,
     chapters: 8,
     priority: "Medium" as "Low" | "Medium" | "High"
   });
@@ -65,14 +91,26 @@ export default function ExamsPage() {
       name: newExam.name,
       subject: newExam.subject,
       date: newExam.date,
+      endDate: newExam.endDate || undefined,
       chapters: newExam.chapters,
       completedChapters: 0,
-      priority: newExam.priority
+      priority: newExam.priority,
+      examTime: newExam.examTime || undefined,
+      durationMinutes: newExam.durationMinutes || undefined,
+      venue: newExam.venue || undefined,
+      examType: newExam.examType,
+      totalMarks: newExam.totalMarks === "" ? undefined : Number(newExam.totalMarks)
     });
     setNewExam({
       name: "",
       subject: subjectsList[0] || "Mathematics",
       date: "",
+      endDate: "",
+      examTime: "",
+      durationMinutes: 180,
+      venue: "",
+      examType: "Final Exam",
+      totalMarks: "",
       chapters: 8,
       priority: "Medium"
     });
@@ -209,10 +247,36 @@ export default function ExamsPage() {
                     </h3>
                     
                     <p style={{ fontSize: "11px", color: "var(--c-text-secondary)", marginTop: "2px" }}>
-                      {exam.date} • <strong style={{ color: daysRemaining <= 3 ? "#B91C1C" : "var(--c-text-primary)" }}>{daysRemaining} days left</strong>
+                      {exam.date}{exam.endDate ? ` – ${exam.endDate}` : ""} • <strong style={{ color: daysRemaining <= 3 ? "#B91C1C" : "var(--c-text-primary)" }}>{daysRemaining} days left</strong>
                     </p>
                   </div>
                 </div>
+
+                {/* Exam detail chips: type, time, venue, marks */}
+                {(exam.examType || exam.examTime || exam.venue || exam.totalMarks) && (
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
+                    {exam.examType && (
+                      <span style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "10.5px", fontWeight: 600, color: "var(--c-text-secondary)", background: "var(--c-surface-2)", border: "1px solid var(--c-border-1)", borderRadius: "var(--r-md)", padding: "3px 8px" }}>
+                        <BookOpen size={10} /> {exam.examType}
+                      </span>
+                    )}
+                    {exam.examTime && (
+                      <span style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "10.5px", fontWeight: 600, color: "var(--c-text-secondary)", background: "var(--c-surface-2)", border: "1px solid var(--c-border-1)", borderRadius: "var(--r-md)", padding: "3px 8px" }}>
+                        <Clock size={10} /> {fmtTime(exam.examTime)}{exam.durationMinutes ? ` (${fmtDuration(exam.durationMinutes)})` : ""}
+                      </span>
+                    )}
+                    {exam.venue && (
+                      <span style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "10.5px", fontWeight: 600, color: "var(--c-text-secondary)", background: "var(--c-surface-2)", border: "1px solid var(--c-border-1)", borderRadius: "var(--r-md)", padding: "3px 8px" }}>
+                        <MapPin size={10} /> {exam.venue}
+                      </span>
+                    )}
+                    {exam.totalMarks && (
+                      <span style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "10.5px", fontWeight: 600, color: "var(--c-text-secondary)", background: "var(--c-surface-2)", border: "1px solid var(--c-border-1)", borderRadius: "var(--r-md)", padding: "3px 8px" }}>
+                        <Award size={10} /> {exam.totalMarks} marks
+                      </span>
+                    )}
+                  </div>
+                )}
 
                 {/* Readiness parameters and risk info */}
                 <div style={{ borderTop: "1px solid var(--c-border-1)", paddingTop: "14px", display: "flex", flexDirection: "column", gap: "10px" }}>
@@ -302,7 +366,7 @@ export default function ExamsPage() {
       {/* Add Exam Modal overlay */}
       {showAddModal && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(3,3,7,0.72)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 200, backdropFilter: "blur(8px)" }}>
-          <div className="card animate-up" style={{ padding: "32px", width: "420px", background: "var(--c-surface-1)", border: "1px solid var(--c-border-2)", boxShadow: "var(--sh-lg)" }}>
+          <div className="card animate-up" style={{ padding: "32px", width: "420px", maxHeight: "88vh", overflowY: "auto", background: "var(--c-surface-1)", border: "1px solid var(--c-border-2)", boxShadow: "var(--sh-lg)" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
               <h3 style={{ fontSize: "18px", fontWeight: 800, color: "var(--c-text-primary)", fontFamily: "var(--font-display)", letterSpacing: "-0.02em" }}>
                 Add New Exam Milestone
@@ -344,22 +408,101 @@ export default function ExamsPage() {
                 </select>
               </div>
 
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+                <div>
+                  <label className="form-label" htmlFor="exam-date-input">Exam Date</label>
+                  <input
+                    id="exam-date-input"
+                    type="date"
+                    required
+                    className="input"
+                    value={newExam.date}
+                    onChange={(e) => setNewExam(p => ({ ...p, date: e.target.value }))}
+                  />
+                </div>
+                <div>
+                  <label className="form-label" htmlFor="exam-end-date-input">End Date (optional)</label>
+                  <input
+                    id="exam-end-date-input"
+                    type="date"
+                    className="input"
+                    value={newExam.endDate}
+                    min={newExam.date || undefined}
+                    onChange={(e) => setNewExam(p => ({ ...p, endDate: e.target.value }))}
+                  />
+                </div>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+                <div>
+                  <label className="form-label" htmlFor="exam-time-input">Exam Time</label>
+                  <input
+                    id="exam-time-input"
+                    type="time"
+                    className="input"
+                    value={newExam.examTime}
+                    onChange={(e) => setNewExam(p => ({ ...p, examTime: e.target.value }))}
+                  />
+                </div>
+                <div>
+                  <label className="form-label" htmlFor="exam-duration-input">Duration (minutes)</label>
+                  <input
+                    id="exam-duration-input"
+                    type="number"
+                    min={15}
+                    step={15}
+                    className="input"
+                    value={newExam.durationMinutes}
+                    onChange={(e) => setNewExam(p => ({ ...p, durationMinutes: parseInt(e.target.value) || 180 }))}
+                  />
+                </div>
+              </div>
+
               <div>
-                <label className="form-label" htmlFor="exam-date-input">Exam Date</label>
-                <input 
-                  id="exam-date-input"
-                  type="date"
-                  required
+                <label className="form-label" htmlFor="exam-venue-input">Venue / Location (optional)</label>
+                <input
+                  id="exam-venue-input"
                   className="input"
-                  value={newExam.date}
-                  onChange={(e) => setNewExam(p => ({ ...p, date: e.target.value }))}
+                  placeholder="e.g. Exam Hall B, Room 204"
+                  value={newExam.venue}
+                  onChange={(e) => setNewExam(p => ({ ...p, venue: e.target.value }))}
                 />
               </div>
 
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
                 <div>
+                  <label className="form-label" htmlFor="exam-type-select">Exam Type</label>
+                  <select
+                    id="exam-type-select"
+                    className="input"
+                    value={newExam.examType}
+                    onChange={(e) => setNewExam(p => ({ ...p, examType: e.target.value as any }))}
+                  >
+                    <option value="Internal Assessment">Internal Assessment</option>
+                    <option value="Final Exam">Final Exam</option>
+                    <option value="Mid-term">Mid-term</option>
+                    <option value="Quiz">Quiz</option>
+                    <option value="Practical">Practical</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="form-label" htmlFor="exam-marks-input">Total Marks (optional)</label>
+                  <input
+                    id="exam-marks-input"
+                    type="number"
+                    min={1}
+                    className="input"
+                    placeholder="e.g. 100"
+                    value={newExam.totalMarks}
+                    onChange={(e) => setNewExam(p => ({ ...p, totalMarks: e.target.value === "" ? "" : parseInt(e.target.value) || "" }))}
+                  />
+                </div>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+                <div>
                   <label className="form-label" htmlFor="exam-chapters-input">Syllabus Chapters</label>
-                  <input 
+                  <input
                     id="exam-chapters-input"
                     type="number"
                     required

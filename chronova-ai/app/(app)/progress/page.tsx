@@ -8,15 +8,27 @@ import {
 } from "lucide-react";
 import { useScheduleStore } from "@/lib/store/scheduleStore";
 
+// Returns the ISO date (YYYY-MM-DD) of the Monday of the week containing `d`.
+function getWeekKey(d: Date): string {
+  const date = new Date(d);
+  const day = date.getDay();
+  const diff = date.getDate() - day + (day === 0 ? -6 : 1);
+  date.setDate(diff);
+  date.setHours(0, 0, 0, 0);
+  return date.toISOString().split("T")[0];
+}
+
 export default function ProgressPage() {
-  const { 
-    events, 
-    sleepHistory, 
+  const {
+    events,
+    sleepHistory,
     exams,
     level,
     xp,
     loadFromDatabase,
-    isLoading
+    isLoading,
+    weeklyHoursLog,
+    recordWeeklyHours
   } = useScheduleStore();
 
   const [aiReport, setAiReport] = useState<string>("");
@@ -32,6 +44,24 @@ export default function ProgressPage() {
     .reduce((acc, e) => acc + (e.end - e.start), 0);
 
   const totalScheduledHours = events.reduce((acc, e) => acc + (e.end - e.start), 0);
+
+  // Record this week's completed-hours snapshot so future weeks can show a
+  // real (never fabricated) week-over-week comparison. Only records once
+  // data has actually loaded, and only writes when the value has changed.
+  const thisWeekKey = getWeekKey(new Date());
+  useEffect(() => {
+    if (isLoading || events.length === 0) return;
+    recordWeeklyHours(thisWeekKey, completedHoursThisWeek);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoading, completedHoursThisWeek, thisWeekKey]);
+
+  const lastWeekKey = getWeekKey(new Date(Date.now() - 7 * 24 * 3600 * 1000));
+  const lastWeekHours = weeklyHoursLog[lastWeekKey];
+  const hasLastWeekData = typeof lastWeekHours === "number";
+  const weeklyDelta = hasLastWeekData ? completedHoursThisWeek - lastWeekHours : 0;
+  const weeklyDeltaPct = hasLastWeekData && lastWeekHours > 0
+    ? Math.round((weeklyDelta / lastWeekHours) * 100)
+    : null;
 
   // Consistency Score
   const totalSessions = events.length;
@@ -175,6 +205,7 @@ export default function ProgressPage() {
   };
 
   const heatmapCells = generateHeatmapData();
+  const hasAnyHeatmapActivity = heatmapCells.some(c => c.hours > 0);
 
   // Achievements Definition & Calculation
   const achievements = [
@@ -183,7 +214,8 @@ export default function ProgressPage() {
       title: "Early Bird",
       desc: "Complete a study block starting before 9:00 AM",
       unlocked: events.some(e => e.done && e.start < 9.0),
-      icon: <Sparkles size={16} />,
+      icon: Sparkles,
+      color: "#B45309",
       progress: events.some(e => e.done && e.start < 9.0) ? "1/1" : "0/1"
     },
     {
@@ -191,7 +223,8 @@ export default function ProgressPage() {
       title: "Consistency Pro",
       desc: "Complete 5 or more study sessions",
       unlocked: events.filter(e => e.done).length >= 5,
-      icon: <Trophy size={16} />,
+      icon: Trophy,
+      color: "#7C3AED",
       progress: `${Math.min(5, events.filter(e => e.done).length)}/5`
     },
     {
@@ -199,7 +232,8 @@ export default function ProgressPage() {
       title: "Syllabus Crusher",
       desc: "Complete all chapters in any exam syllabus",
       unlocked: exams.some(e => e.chapters > 0 && e.completedChapters === e.chapters),
-      icon: <BookOpen size={16} />,
+      icon: BookOpen,
+      color: "#1D4ED8",
       progress: exams.some(e => e.chapters > 0 && e.completedChapters === e.chapters) ? "1/1" : "0/1"
     },
     {
@@ -207,7 +241,8 @@ export default function ProgressPage() {
       title: "Night Owl",
       desc: "Complete a study block ending after 9:00 PM",
       unlocked: events.some(e => e.done && e.end > 21.0),
-      icon: <Moon size={16} />,
+      icon: Moon,
+      color: "#4338CA",
       progress: events.some(e => e.done && e.end > 21.0) ? "1/1" : "0/1"
     },
     {
@@ -215,7 +250,8 @@ export default function ProgressPage() {
       title: "Syllabus Strategist",
       desc: "Generate an exam revision plan",
       unlocked: exams.some(e => e.revisionPlanGenerated),
-      icon: <Brain size={16} />,
+      icon: Brain,
+      color: "#047857",
       progress: exams.some(e => e.revisionPlanGenerated) ? "1/1" : "0/1"
     },
     {
@@ -223,10 +259,14 @@ export default function ProgressPage() {
       title: "Rising Scholar",
       desc: "Reach Academic Level 2 or higher",
       unlocked: level >= 2,
-      icon: <Award size={16} />,
+      icon: Award,
+      color: "#B91C1C",
       progress: `${Math.min(2, level)}/2`
     }
   ];
+
+  const unlockedAchievements = achievements.filter(a => a.unlocked);
+  const lockedAchievements = achievements.filter(a => !a.unlocked);
 
   if (isLoading) {
     return (
@@ -301,8 +341,8 @@ export default function ProgressPage() {
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "12px", borderTop: "1px solid var(--c-border-0)", paddingTop: "8px" }}>
                 <Clock size={12} color="var(--c-text-secondary)" />
-                <span style={{ fontSize: "11.5px", color: "var(--c-text-secondary)" }}>
-                  of {totalScheduledHours.toFixed(1)}h scheduled this week
+                <span style={{ fontSize: "11.5px", color: "var(--c-text-secondary)" }} title="Total hours across every session in your recurring weekly schedule, not just today">
+                  of {totalScheduledHours.toFixed(1)}h in your weekly plan
                 </span>
               </div>
             </div>
@@ -394,6 +434,58 @@ export default function ProgressPage() {
                 <span>Today</span>
               </div>
             </div>
+
+            {!hasAnyHeatmapActivity && (
+              <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "14px", padding: "10px 12px", background: "var(--c-surface-0)", border: "1px dashed var(--c-border-2)", borderRadius: "var(--r-md)" }}>
+                <Sparkles size={13} color="var(--c-text-tertiary)" />
+                <span style={{ fontSize: "11.5px", color: "var(--c-text-secondary)" }}>
+                  Complete study sessions to build your rhythm — your heatmap fills in as you check off focus blocks on the calendar.
+                </span>
+              </div>
+            )}
+          </div>
+
+          {/* Weekly Comparison Panel */}
+          <div className="card" style={{ padding: "20px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "14px" }}>
+              <TrendingUp size={14} color="var(--c-text-secondary)" />
+              <h3 style={{ fontSize: "13.5px", fontWeight: 600, color: "var(--c-text-primary)", fontFamily: "var(--font-display)" }}>
+                This Week vs. Last Week
+              </h3>
+            </div>
+
+            {hasLastWeekData ? (
+              <div style={{ display: "flex", alignItems: "center", gap: "24px", flexWrap: "wrap" }}>
+                <div>
+                  <span style={{ fontSize: "9.5px", color: "var(--c-text-tertiary)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em" }}>Last Week</span>
+                  <p style={{ fontSize: "20px", fontWeight: 700, color: "var(--c-text-secondary)", fontFamily: "var(--font-display)", marginTop: "2px" }}>
+                    {lastWeekHours.toFixed(1)}h
+                  </p>
+                </div>
+                <div style={{ fontSize: "18px", color: "var(--c-text-tertiary)" }}>→</div>
+                <div>
+                  <span style={{ fontSize: "9.5px", color: "var(--c-text-tertiary)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em" }}>This Week</span>
+                  <p style={{ fontSize: "20px", fontWeight: 700, color: "var(--c-text-primary)", fontFamily: "var(--font-display)", marginTop: "2px" }}>
+                    {completedHoursThisWeek.toFixed(1)}h
+                  </p>
+                </div>
+                <div style={{
+                  display: "flex", alignItems: "center", gap: "6px", padding: "6px 12px", borderRadius: "var(--r-full)",
+                  background: weeklyDelta >= 0 ? "var(--c-success-dim)" : "var(--c-danger-dim)",
+                  border: `1px solid ${weeklyDelta >= 0 ? "var(--c-success-border)" : "var(--c-danger-border)"}`
+                }}>
+                  <TrendingUp size={13} color={weeklyDelta >= 0 ? "#047857" : "#B91C1C"} style={{ transform: weeklyDelta >= 0 ? "none" : "scaleY(-1)" }} />
+                  <span style={{ fontSize: "12.5px", fontWeight: 700, color: weeklyDelta >= 0 ? "#047857" : "#B91C1C" }}>
+                    {weeklyDelta >= 0 ? "+" : ""}{weeklyDelta.toFixed(1)}h{weeklyDeltaPct !== null ? ` (${weeklyDelta >= 0 ? "+" : ""}${weeklyDeltaPct}%)` : ""}
+                  </span>
+                </div>
+              </div>
+            ) : (
+              <p style={{ fontSize: "12px", color: "var(--c-text-secondary)", lineHeight: 1.5 }}>
+                You're currently logging <strong style={{ color: "var(--c-text-primary)" }}>{completedHoursThisWeek.toFixed(1)}h</strong> this week.
+                Come back after next week starts to see how it compares — Chronova tracks real week-over-week trends as you keep using the app.
+              </p>
+            )}
           </div>
 
           {/* Subject Mastery & Sleep Trend split grid */}
@@ -533,61 +625,82 @@ export default function ProgressPage() {
 
           </div>
 
-          {/* Achievements Grid */}
+          {/* Achievements Grid — unlocked prominent & celebratory, locked small and muted */}
           <div className="card" style={{ padding: "20px" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
               <Trophy size={14} color="var(--c-text-secondary)" />
               <h3 style={{ fontSize: "13.5px", fontWeight: 600, color: "var(--c-text-primary)", fontFamily: "var(--font-display)" }}>
                 Academic Milestones & Badges
               </h3>
             </div>
+            <p style={{ fontSize: "11px", color: "var(--c-text-tertiary)", marginBottom: "16px" }}>
+              {unlockedAchievements.length > 0
+                ? `${unlockedAchievements.length} of ${achievements.length} unlocked`
+                : "Complete study milestones to unlock badges"}
+            </p>
 
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "12px" }} className="mobile-column-flex">
-              {achievements.map((ach) => (
-                <div 
-                  key={ach.id} 
-                  style={{
-                    padding: "14px 16px",
-                    borderRadius: "var(--r-lg)",
-                    background: ach.unlocked ? "var(--c-surface-2)" : "var(--c-surface-1)",
-                    border: ach.unlocked ? "1px solid var(--c-accent-border)" : "1px solid var(--c-border-1)",
-                    opacity: ach.unlocked ? 1 : 0.65,
-                    display: "flex",
-                    gap: "12px",
-                    alignItems: "flex-start",
-                    position: "relative",
-                    transition: "transform 180ms ease, border-color 180ms ease"
-                  }}
-                  className="achievement-card"
-                >
-                  <div 
-                    style={{ 
-                      width: "32px", 
-                      height: "32px", 
-                      borderRadius: "var(--r-md)", 
-                      background: ach.unlocked ? "var(--c-accent-dim)" : "var(--c-surface-2)", 
-                      color: ach.unlocked ? "var(--c-accent)" : "var(--c-text-tertiary)",
-                      display: "flex", 
-                      alignItems: "center", 
-                      justifyContent: "center",
-                      flexShrink: 0
+            {unlockedAchievements.length > 0 && (
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "12px", marginBottom: lockedAchievements.length > 0 ? "16px" : "0" }} className="mobile-column-flex">
+                {unlockedAchievements.map((ach) => (
+                  <div
+                    key={ach.id}
+                    style={{
+                      padding: "14px 16px",
+                      borderRadius: "var(--r-lg)",
+                      background: "var(--c-surface-0)",
+                      border: "1px solid var(--c-border-2)",
+                      borderLeft: `3px solid ${ach.color}`,
+                      display: "flex",
+                      gap: "12px",
+                      alignItems: "flex-start",
+                      position: "relative",
+                      transition: "transform 180ms ease, border-color 180ms ease"
                     }}
+                    className="achievement-card"
+                    title={ach.desc}
                   >
-                    {ach.unlocked ? ach.icon : <Lock size={14} />}
-                  </div>
-                  <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                      <span style={{ fontSize: "12px", fontWeight: 600, color: "var(--c-text-primary)" }}>{ach.title}</span>
-                      {ach.unlocked && <span style={{ width: "5px", height: "5px", borderRadius: "50%", background: "var(--c-success)" }} />}
+                    <div
+                      style={{
+                        width: "32px",
+                        height: "32px",
+                        borderRadius: "var(--r-md)",
+                        background: ach.color + "1A",
+                        color: ach.color,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        flexShrink: 0
+                      }}
+                    >
+                      <ach.icon size={16} />
                     </div>
-                    <p style={{ fontSize: "11px", color: "var(--c-text-secondary)", lineHeight: 1.3 }}>{ach.desc}</p>
-                    <span style={{ fontSize: "9.5px", color: "var(--c-text-secondary)", fontWeight: 500, marginTop: "4px" }}>
-                      Progress: {ach.progress}
-                    </span>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "2px", minWidth: 0 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                        <span style={{ fontSize: "12px", fontWeight: 700, color: "var(--c-text-primary)" }}>{ach.title}</span>
+                        <CheckCircle size={12} color={ach.color} style={{ flexShrink: 0 }} />
+                      </div>
+                      <p style={{ fontSize: "11px", color: "var(--c-text-secondary)", lineHeight: 1.3 }}>{ach.desc}</p>
+                      <span style={{ fontSize: "9.5px", color: ach.color, fontWeight: 700, marginTop: "4px" }}>
+                        Unlocked · {ach.progress}
+                      </span>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
+
+            {lockedAchievements.length > 0 && (
+              <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                {lockedAchievements.map((ach) => (
+                  <div key={ach.id} style={{ display: "flex", alignItems: "center", gap: "8px", padding: "5px 4px", opacity: 0.6 }} title={ach.desc}>
+                    <Lock size={11} color="var(--c-text-tertiary)" style={{ flexShrink: 0 }} />
+                    <span style={{ fontSize: "11px", fontWeight: 600, color: "var(--c-text-secondary)" }} className="truncate">{ach.title}</span>
+                    <span style={{ fontSize: "10px", color: "var(--c-text-tertiary)" }} className="truncate">{ach.desc}</span>
+                    <span style={{ fontSize: "9.5px", color: "var(--c-text-tertiary)", marginLeft: "auto", flexShrink: 0 }}>{ach.progress}</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* AI Focus Advisor Output */}

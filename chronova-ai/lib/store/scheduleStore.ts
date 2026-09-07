@@ -15,11 +15,17 @@ export interface Exam {
   id: string;
   name: string;
   date: string;
+  endDate?: string;         // optional, for multi-day exams
   subject: string;
   chapters: number;
   completedChapters: number;
   priority: "Low" | "Medium" | "High";
   revisionPlanGenerated: boolean;
+  examTime?: string;        // "HH:MM" 24-hour, optional
+  durationMinutes?: number; // optional, defaults to 180 (3h) if not set
+  venue?: string;           // optional
+  examType?: "Internal Assessment" | "Final Exam" | "Mid-term" | "Quiz" | "Practical";
+  totalMarks?: number;      // optional
 }
 
 export interface RevisionItem {
@@ -78,6 +84,11 @@ interface ScheduleState {
   studentType: string;
   preferredStudyStyle: string;
   schoolName: string;
+  // Snapshot of completed study hours per week, keyed by the ISO date (YYYY-MM-DD)
+  // of that week's Monday. Recorded progressively as the app is used — never
+  // backfilled or estimated — so week-over-week comparisons only ever reflect
+  // real logged activity.
+  weeklyHoursLog: Record<string, number>;
 
   loadFromDatabase: () => Promise<void>;
   setEvents: (events: ScheduleEvent[]) => Promise<void>;
@@ -108,6 +119,7 @@ interface ScheduleState {
     preferredStudyStyle: string;
     schoolName: string;
   }>) => Promise<void>;
+  recordWeeklyHours: (weekKey: string, hours: number) => Promise<void>;
 }
 
 // Helper to convert day index + decimal hours to local Date timestamps
@@ -158,6 +170,7 @@ export const useScheduleStore = create<ScheduleState>((set, get) => {
     studentType: string;
     preferredStudyStyle: string;
     schoolName: string;
+    weeklyHoursLog: Record<string, number>;
   }>) {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
@@ -175,6 +188,7 @@ export const useScheduleStore = create<ScheduleState>((set, get) => {
       studentType: get().studentType,
       preferredStudyStyle: get().preferredStudyStyle,
       schoolName: get().schoolName,
+      weeklyHoursLog: get().weeklyHoursLog,
       ...updates
     };
 
@@ -229,6 +243,7 @@ export const useScheduleStore = create<ScheduleState>((set, get) => {
     studentType: "college",
     preferredStudyStyle: "balanced",
     schoolName: "",
+    weeklyHoursLog: {},
 
     loadFromDatabase: async () => {
       set({ isLoading: true });
@@ -269,6 +284,7 @@ export const useScheduleStore = create<ScheduleState>((set, get) => {
         let studentType = "college";
         let preferredStudyStyle = "balanced";
         let schoolName = "";
+        let weeklyHoursLog: Record<string, number> = {};
 
         if (dbSchedules) {
           dbSchedules.forEach((row) => {
@@ -287,6 +303,7 @@ export const useScheduleStore = create<ScheduleState>((set, get) => {
                 studentType = stats.studentType ?? "college";
                 preferredStudyStyle = stats.preferredStudyStyle ?? "balanced";
                 schoolName = stats.schoolName ?? "";
+                weeklyHoursLog = stats.weeklyHoursLog ?? {};
               } catch (e) {
                 console.error("Error parsing stats config", e);
               }
@@ -297,11 +314,17 @@ export const useScheduleStore = create<ScheduleState>((set, get) => {
                   id: row.id,
                   name: row.title,
                   date: new Date(row.start_time).toISOString().split("T")[0],
+                  endDate: meta.endDate || undefined,
                   subject: meta.subject || "",
                   chapters: meta.chapters ?? 1,
                   completedChapters: meta.completedChapters ?? 0,
                   priority: meta.priority || "Medium",
-                  revisionPlanGenerated: meta.revisionPlanGenerated ?? false
+                  revisionPlanGenerated: meta.revisionPlanGenerated ?? false,
+                  examTime: meta.examTime || undefined,
+                  durationMinutes: meta.durationMinutes ?? undefined,
+                  venue: meta.venue || undefined,
+                  examType: meta.examType || undefined,
+                  totalMarks: meta.totalMarks ?? undefined
                 });
               } catch (e) {
                 console.error("Error parsing exam meta", e);
@@ -377,6 +400,7 @@ export const useScheduleStore = create<ScheduleState>((set, get) => {
           studentType,
           preferredStudyStyle,
           schoolName,
+          weeklyHoursLog,
           isLoading: false
         });
       } catch (err) {
@@ -623,7 +647,9 @@ export const useScheduleStore = create<ScheduleState>((set, get) => {
       if (!user) return;
 
       const dateStr = exam.date;
-      const examDate = new Date(dateStr + "T09:00:00");
+      const timeStr = exam.examTime || "09:00";
+      const durationMinutes = exam.durationMinutes ?? 180;
+      const examDate = new Date(`${dateStr}T${timeStr}:00`);
 
       const { data: inserted } = await supabase
         .from("schedules")
@@ -632,14 +658,20 @@ export const useScheduleStore = create<ScheduleState>((set, get) => {
           title: exam.name,
           session_type: "exam",
           start_time: examDate.toISOString(),
-          end_time: new Date(examDate.getTime() + 3 * 3600000).toISOString(),
+          end_time: new Date(examDate.getTime() + durationMinutes * 60000).toISOString(),
           completion_status: "pending",
           description: JSON.stringify({
             subject: exam.subject,
             chapters: exam.chapters,
             completedChapters: exam.completedChapters,
             priority: exam.priority,
-            revisionPlanGenerated: false
+            revisionPlanGenerated: false,
+            endDate: exam.endDate || undefined,
+            examTime: exam.examTime || undefined,
+            durationMinutes: exam.durationMinutes ?? undefined,
+            venue: exam.venue || undefined,
+            examType: exam.examType || undefined,
+            totalMarks: exam.totalMarks ?? undefined
           })
         })
         .select()
@@ -650,11 +682,17 @@ export const useScheduleStore = create<ScheduleState>((set, get) => {
           id: inserted.id,
           name: exam.name,
           date: dateStr,
+          endDate: exam.endDate,
           subject: exam.subject,
           chapters: exam.chapters,
           completedChapters: exam.completedChapters,
           priority: exam.priority,
-          revisionPlanGenerated: false
+          revisionPlanGenerated: false,
+          examTime: exam.examTime,
+          durationMinutes: exam.durationMinutes,
+          venue: exam.venue,
+          examType: exam.examType,
+          totalMarks: exam.totalMarks
         };
         set((state) => ({ exams: [...state.exams, newExam] }));
       }
@@ -924,6 +962,18 @@ export const useScheduleStore = create<ScheduleState>((set, get) => {
         localStorage.setItem("chronova_accent", prefs.accentColor);
       }
       await saveStatsRow(prefs);
+    },
+
+    // Records this week's completed-study-hours total under its week key (the
+    // ISO date of that week's Monday), so future weeks can show a real
+    // week-over-week comparison. Safe to call repeatedly during the same week
+    // — it just overwrites that week's entry with the latest true total.
+    recordWeeklyHours: async (weekKey, hours) => {
+      const current = get().weeklyHoursLog;
+      if (current[weekKey] === hours) return; // no change, skip a write
+      const updated = { ...current, [weekKey]: hours };
+      set({ weeklyHoursLog: updated });
+      await saveStatsRow({ weeklyHoursLog: updated });
     }
   };
 });

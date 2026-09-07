@@ -680,8 +680,14 @@ export default function CalendarPage() {
       </div>
 
       {/* Floating Context Menu */}
-      {contextMenu.event && (
-        <div 
+      {contextMenu.event && (() => {
+        // Always read completion state from the live `events` array, not the
+        // snapshot captured when the menu opened — otherwise "Mark Complete" /
+        // "Mark Incomplete" can show a stale label if `done` changes out from
+        // under an open menu (e.g. toggled from another tab/device).
+        const liveEvent = events.find(e => e.id === contextMenu.event!.id) ?? contextMenu.event;
+        return (
+        <div
           ref={contextRef}
           style={{
             position: "fixed",
@@ -713,7 +719,7 @@ export default function CalendarPage() {
             onMouseLeave={e => e.currentTarget.style.background = "none"}
           >
             <Check size={12} color="var(--c-success)" />
-            {contextMenu.event.done ? "Mark Incomplete" : "Mark Completed"}
+            {liveEvent.done ? "Mark Incomplete" : "Mark Completed"}
           </button>
           
           <button
@@ -751,7 +757,8 @@ export default function CalendarPage() {
             Delete Session
           </button>
         </div>
-      )}
+        );
+      })()}
 
       {/* Add Session Modal */}
       {showAdd && (
