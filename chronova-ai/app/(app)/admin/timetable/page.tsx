@@ -282,46 +282,46 @@ export default function TimetablePage() {
     <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "28px" }}>
         <div>
-          <p className="section-label">Administration</p>
-          <h1 style={{ fontFamily: "var(--font-outfit)", fontSize: "24px", fontWeight: 700, marginTop: "4px" }}>Full Timetable</h1>
+          <p className="eyebrow">Administration</p>
+          <h1 style={{ fontFamily: "var(--font-display)", fontSize: "24px", fontWeight: 700, marginTop: "4px", color: "var(--c-text-primary)" }}>Full Timetable</h1>
           <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "8px" }}>
-            <CheckCircle size={14} color="#10b981" />
-            <span style={{ fontSize: "13px", color: "#6ee7b7" }}>No conflicts detected · AI-optimized</span>
+            <CheckCircle size={14} color="var(--c-success)" />
+            <span style={{ fontSize: "13px", color: "var(--c-success)" }}>No conflicts detected · AI-optimized</span>
           </div>
         </div>
         <div style={{ display: "flex", gap: "10px" }}>
           <select
-            className="input-field"
+            className="input"
             value={selectedBatch}
             onChange={e => setSelectedBatch(e.target.value)}
-            style={{ width: "auto", background: "rgba(255,255,255,0.05)" }}
+            style={{ width: "auto" }}
           >
             {["Class 11 - Science A", "Class 11 - Science B", "Class 12 - Science", "Class 10 - General"].map(b => (
-              <option key={b} value={b} style={{ background: "#0f0f1a" }}>{b}</option>
+              <option key={b} value={b}>{b}</option>
             ))}
           </select>
-          <button id="download-timetable-btn" onClick={exportInstitutionTimetableToPDF} className="btn-secondary" style={{ fontSize: "13px" }}>
+          <button id="download-timetable-btn" onClick={exportInstitutionTimetableToPDF} className="btn btn-secondary" style={{ fontSize: "13px" }}>
             <Download size={14} /> Export PDF
           </button>
         </div>
       </div>
 
       {/* Full timetable grid */}
-      <div className="glass" style={{ overflow: "auto" }}>
+      <div className="card" style={{ overflow: "auto" }}>
         <table style={{ width: "100%", borderCollapse: "collapse", minWidth: "800px" }}>
           <thead>
-            <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
-              <th style={{ padding: "16px", textAlign: "left", fontSize: "12px", color: "var(--text-muted)", fontWeight: 600, width: "120px" }}>TIME</th>
+            <tr style={{ borderBottom: "1px solid var(--c-border-1)" }}>
+              <th style={{ padding: "16px", textAlign: "left", fontSize: "12px", color: "var(--c-text-tertiary)", fontWeight: 600, width: "120px" }}>TIME</th>
               {DAYS.map(day => (
-                <th key={day} style={{ padding: "16px", textAlign: "center", fontSize: "13px", color: "var(--text-secondary)", fontWeight: 700 }}>{day}</th>
+                <th key={day} style={{ padding: "16px", textAlign: "center", fontSize: "13px", color: "var(--c-text-secondary)", fontWeight: 700 }}>{day}</th>
               ))}
             </tr>
           </thead>
           <tbody>
             {TIME_SLOTS.map((slot, si) => (
-              <tr key={slot} style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
+              <tr key={slot} style={{ borderBottom: "1px solid var(--c-border-0)" }}>
                 <td style={{ padding: "12px 16px" }}>
-                  <span style={{ fontSize: "12px", color: "var(--text-muted)", fontWeight: 600 }}>{slot}</span>
+                  <span style={{ fontSize: "12px", color: "var(--c-text-tertiary)", fontWeight: 600 }}>{slot}</span>
                 </td>
                 {DAYS.map(day => {
                   const entry = DEMO_TIMETABLE[day]?.[si];
@@ -334,13 +334,13 @@ export default function TimetablePage() {
                           border: `1px solid ${entry.color}40`,
                           borderLeft: `3px solid ${entry.color}`,
                         }}>
-                          <p style={{ fontSize: "13px", fontWeight: 700, color: "var(--text-primary)" }}>{entry.subject}</p>
-                          <p style={{ fontSize: "11px", color: "var(--text-secondary)", marginTop: "3px" }}>{entry.teacher}</p>
-                          <p style={{ fontSize: "10px", color: "var(--text-muted)", marginTop: "2px" }}>{entry.room}</p>
+                          <p style={{ fontSize: "13px", fontWeight: 700, color: "var(--c-text-primary)" }}>{entry.subject}</p>
+                          <p style={{ fontSize: "11px", color: "var(--c-text-secondary)", marginTop: "3px" }}>{entry.teacher}</p>
+                          <p style={{ fontSize: "10px", color: "var(--c-text-tertiary)", marginTop: "2px" }}>{entry.room}</p>
                         </div>
                       ) : (
-                        <div style={{ padding: "10px", borderRadius: "10px", background: "rgba(255,255,255,0.01)" }}>
-                          <span style={{ fontSize: "12px", color: "var(--text-muted)" }}>—</span>
+                        <div style={{ padding: "10px", borderRadius: "10px", background: "var(--c-surface-0)" }}>
+                          <span style={{ fontSize: "12px", color: "var(--c-text-tertiary)" }}>—</span>
                         </div>
                       )}
                     </td>
@@ -353,13 +353,13 @@ export default function TimetablePage() {
       </div>
 
       {/* Subject legend */}
-      <div className="glass-card" style={{ padding: "20px", marginTop: "20px" }}>
-        <p style={{ fontSize: "13px", color: "var(--text-muted)", marginBottom: "12px", fontWeight: 600 }}>SUBJECT LEGEND</p>
+      <div className="card" style={{ padding: "20px", marginTop: "20px" }}>
+        <p style={{ fontSize: "13px", color: "var(--c-text-tertiary)", marginBottom: "12px", fontWeight: 600 }}>SUBJECT LEGEND</p>
         <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
           {Object.values(DEMO_TIMETABLE.Monday).map((e) => (
             <div key={e.subject} style={{ display: "flex", alignItems: "center", gap: "6px", padding: "6px 12px", borderRadius: "999px", background: `${e.color}15`, border: `1px solid ${e.color}30` }}>
               <div style={{ width: "8px", height: "8px", borderRadius: "2px", background: e.color }} />
-              <span style={{ fontSize: "13px", color: "var(--text-primary)" }}>{e.subject}</span>
+              <span style={{ fontSize: "13px", color: "var(--c-text-primary)" }}>{e.subject}</span>
             </div>
           ))}
         </div>

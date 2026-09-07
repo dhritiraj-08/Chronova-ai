@@ -45,7 +45,6 @@ export default function LoginPage() {
           const confirmData = await confirmRes.json();
 
           if (confirmRes.ok && confirmData.success) {
-            // Retry login since the email is now confirmed
             const retry = await supabase.auth.signInWithPassword({ email, password });
             if (retry.error) {
               setError(retry.error.message);
@@ -87,45 +86,43 @@ export default function LoginPage() {
     <div style={{ display: "flex", minHeight: "100vh" }} className="page-bg animate-fade">
       <div className="page-content" style={{ display: "flex", width: "100%", minHeight: "100vh" }}>
         
-        {/* ── Left panel ── */}
+        {/* Left panel */}
         <div style={{
-          flex: "0 0 440px", display: "flex", flexDirection: "column",
-          justifyContent: "center", padding: "60px 48px",
+          flex: "0 0 420px", display: "flex", flexDirection: "column",
+          justifyContent: "center", padding: "48px 36px",
           borderRight: "1px solid var(--c-border-1)",
-          background: "rgba(8, 9, 15, 0.72)",
-          backdropFilter: "blur(24px)",
+          background: "var(--c-surface-0)",
           position: "relative",
           zIndex: 10
         }} className="responsive-auth-left">
           
           {/* Logo */}
-          <Link href="/" style={{ display: "inline-flex", alignItems: "center", textDecoration: "none", marginBottom: "48px" }}>
-            <Logo size={28} />
+          <Link href="/" style={{ display: "inline-flex", alignItems: "center", textDecoration: "none", marginBottom: "36px" }}>
+            <Logo size={24} />
           </Link>
 
           {/* Heading */}
-          <div style={{ marginBottom: "24px" }}>
-            <h1 style={{ fontFamily: "var(--font-display)", fontSize: "28px", fontWeight: 800, letterSpacing: "-0.025em", color: "var(--c-text-primary)" }}>
+          <div style={{ marginBottom: "20px" }}>
+            <h1 style={{ fontFamily: "var(--font-display)", fontSize: "20px", fontWeight: 600, letterSpacing: "-0.015em", color: "var(--c-text-primary)" }}>
               Welcome back
             </h1>
-            <p style={{ fontSize: "14px", color: "var(--c-text-secondary)", marginTop: "4px" }}>
+            <p style={{ fontSize: "12.5px", color: "var(--c-text-secondary)", marginTop: "2px" }}>
               Sign in to your account to continue
             </p>
           </div>
 
           {/* Role selector tabs */}
-          <div style={{ display: "flex", gap: "6px", background: "rgba(15,17,26,0.6)", borderRadius: "10px", padding: "4px", border: "1px solid var(--c-border-1)", marginBottom: "24px" }}>
+          <div style={{ display: "flex", gap: "4px", background: "var(--c-surface-2)", borderRadius: "var(--r-md)", padding: "3px", border: "1px solid var(--c-border-1)", marginBottom: "20px" }}>
             {(["student", "institution"] as const).map(r => (
               <button 
                 type="button"
                 key={r} 
                 onClick={() => setRole(r)} 
                 style={{
-                  flex: 1, padding: "8px 16px", borderRadius: "8px", border: "none", cursor: "pointer",
-                  fontSize: "13px", fontWeight: 700, transition: "all var(--t-fast)",
+                  flex: 1, padding: "6px 12px", borderRadius: "var(--r-sm)", border: "none", cursor: "pointer",
+                  fontSize: "12px", fontWeight: 500, transition: "all var(--t-fast)",
                   background: role === r ? "var(--c-surface-3)" : "transparent",
-                  color: role === r ? "var(--c-text-primary)" : "var(--c-text-tertiary)",
-                  boxShadow: role === r ? "0 4px 12px rgba(139,92,246,0.06)" : "none"
+                  color: role === r ? "var(--c-text-primary)" : "var(--c-text-tertiary)"
                 }}
               >
                 {r.charAt(0).toUpperCase() + r.slice(1)} Portal
@@ -137,18 +134,18 @@ export default function LoginPage() {
           <button
             onClick={handleGoogle}
             className="btn btn-secondary"
-            style={{ width: "100%", padding: "11px", marginBottom: "24px", justifyContent: "center", gap: "10px", borderRadius: "10px" }}
+            style={{ width: "100%", padding: "10px", marginBottom: "20px", justifyContent: "center", gap: "8px", fontSize: "13px" }}
           >
-            <Globe size={16} color="var(--c-secondary-light)" />
+            <Globe size={14} color="var(--c-text-secondary)" />
             Continue with Google
           </button>
 
-          <div className="divider-text" style={{ marginBottom: "24px" }}>or continue with email</div>
+          <div className="divider-text" style={{ marginBottom: "20px", fontSize: "11px" }}>or continue with email</div>
 
           {/* Form */}
-          <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+          <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
             {error && (
-              <div className="alert alert-error">
+              <div className="alert alert-error" style={{ padding: "8px 12px", fontSize: "12px" }}>
                 <span>{error}</span>
               </div>
             )}
@@ -156,7 +153,7 @@ export default function LoginPage() {
             <div>
               <label className="form-label" htmlFor="login-email">Email</label>
               <div className="input-group">
-                <Mail size={15} className="input-icon" />
+                <Mail size={14} className="input-icon" />
                 <input
                   id="login-email"
                   type="email"
@@ -173,10 +170,10 @@ export default function LoginPage() {
             <div>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
                 <label className="form-label" htmlFor="login-password">Password</label>
-                <a href="#" style={{ fontSize: "12px", color: "var(--c-accent-light)", textDecoration: "none", fontWeight: 600 }}>Forgot password?</a>
+                <a href="#" style={{ fontSize: "11.5px", color: "var(--c-text-secondary)", textDecoration: "none", fontWeight: 500 }}>Forgot password?</a>
               </div>
               <div className="input-group">
-                <Lock size={15} className="input-icon" />
+                <Lock size={14} className="input-icon" />
                 <input
                   id="login-password"
                   type={showPw ? "text" : "password"}
@@ -186,14 +183,14 @@ export default function LoginPage() {
                   onChange={e => setPassword(e.target.value)}
                   required
                   autoComplete="current-password"
-                  style={{ paddingRight: "44px" }}
+                  style={{ paddingRight: "36px" }}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPw(!showPw)}
-                  style={{ position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: "var(--c-text-tertiary)", display: "flex" }}
+                  style={{ position: "absolute", right: "10px", top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: "var(--c-text-tertiary)", display: "flex" }}
                 >
-                  {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
+                  {showPw ? <EyeOff size={14} /> : <Eye size={14} />}
                 </button>
               </div>
             </div>
@@ -203,60 +200,56 @@ export default function LoginPage() {
               type="submit"
               disabled={loading || !email || !password}
               className="btn btn-primary"
-              style={{ width: "100%", padding: "12px", marginTop: "8px", justifyContent: "center", fontSize: "14px", fontWeight: 600, borderRadius: "10px" }}
+              style={{ width: "100%", padding: "10px", marginTop: "4px", justifyContent: "center", fontSize: "13px" }}
             >
-              {loading ? <span className="btn-spinner" /> : <>Sign in <ArrowRight size={15} style={{ marginLeft: "4px" }} /></>}
+              {loading ? "Signing in..." : <>Sign in <ArrowRight size={13} style={{ marginLeft: "2px" }} /></>}
             </button>
           </form>
 
-          <p style={{ marginTop: "32px", fontSize: "13.5px", color: "var(--c-text-tertiary)", textAlign: "center" }}>
+          <p style={{ marginTop: "24px", fontSize: "12.5px", color: "var(--c-text-tertiary)", textAlign: "center" }}>
             Don't have an account?{" "}
-            <Link href="/signup" style={{ color: "var(--c-accent-light)", textDecoration: "none", fontWeight: 600 }}>
+            <Link href="/signup" style={{ color: "var(--c-text-primary)", textDecoration: "none", fontWeight: 500 }}>
               Sign up free
             </Link>
           </p>
         </div>
 
-        {/* ── Right panel ── */}
+        {/* Right panel */}
         <div style={{
           flex: 1, display: "flex", flexDirection: "column",
-          justifyContent: "center", alignItems: "center", padding: "60px",
+          justifyContent: "center", alignItems: "center", padding: "48px",
           position: "relative", overflow: "hidden"
         }} className="responsive-auth-right">
           
-          {/* Ambient glow */}
-          <div style={{ position: "absolute", top: "30%", left: "40%", width: "500px", height: "500px", background: "radial-gradient(circle, rgba(139,92,246,0.08) 0%, transparent 70%)", borderRadius: "50%", filter: "blur(60px)", pointerEvents: "none" }} />
-
-          <div style={{ position: "relative", zIndex: 1, maxWidth: "480px", width: "100%" }}>
+          <div style={{ position: "relative", zIndex: 1, maxWidth: "420px", width: "100%" }}>
             {/* Quote card */}
             <div className="card" style={{
-              padding: "36px",
-              marginBottom: "24px",
-              boxShadow: "var(--sh-lg)"
+              padding: "24px",
+              marginBottom: "16px"
             }}>
-              <p style={{ fontSize: "17.5px", fontWeight: 500, lineHeight: 1.7, color: "var(--c-text-primary)", marginBottom: "28px", letterSpacing: "-0.01em", fontStyle: "italic" }}>
+              <p style={{ fontSize: "15px", fontWeight: 400, lineHeight: 1.6, color: "var(--c-text-primary)", marginBottom: "20px", fontStyle: "italic" }}>
                 "I used to rewrite my schedule every Sunday. Now Chronova does it — and honestly does it better."
               </p>
-              <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                <div style={{ width: "38px", height: "38px", borderRadius: "50%", background: "var(--c-accent-dim)", border: "1px solid var(--c-accent-border)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "13.5px", fontWeight: 700, color: "var(--c-accent-light)" }}>AM</div>
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <div style={{ width: "32px", height: "32px", borderRadius: "50%", background: "var(--c-surface-2)", border: "1px solid var(--c-border-1)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "12px", fontWeight: 600, color: "var(--c-text-primary)" }}>AM</div>
                 <div>
-                  <p style={{ fontSize: "14px", fontWeight: 700, color: "var(--c-text-primary)" }}>Arjun Mehta</p>
-                  <p style={{ fontSize: "12px", color: "var(--c-text-tertiary)", fontWeight: 500 }}>JEE Aspirant · Delhi</p>
+                  <p style={{ fontSize: "12.5px", fontWeight: 600, color: "var(--c-text-primary)" }}>Arjun Mehta</p>
+                  <p style={{ fontSize: "11px", color: "var(--c-text-tertiary)", fontWeight: 500 }}>JEE Aspirant · Delhi</p>
                 </div>
               </div>
             </div>
 
             {/* Mini stats */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
               {[
                 { value: "50K+", label: "Active students" },
                 { value: "94%", label: "Report better grades" },
                 { value: "4.9★", label: "Average rating" },
                 { value: "2,100+", label: "Schools trust us" },
               ].map(({ value, label }) => (
-                <div key={label} className="card" style={{ padding: "18px 20px" }}>
-                  <p style={{ fontFamily: "var(--font-display)", fontSize: "22px", fontWeight: 850, color: "var(--c-text-primary)", letterSpacing: "-0.02em", marginBottom: "4px" }}>{value}</p>
-                  <p style={{ fontSize: "12px", color: "var(--c-text-tertiary)", fontWeight: 500 }}>{label}</p>
+                <div key={label} className="card" style={{ padding: "12px 16px" }}>
+                  <p style={{ fontFamily: "var(--font-display)", fontSize: "18px", fontWeight: 650, color: "var(--c-text-primary)", letterSpacing: "-0.015em", marginBottom: "2px" }}>{value}</p>
+                  <p style={{ fontSize: "11px", color: "var(--c-text-tertiary)", fontWeight: 500 }}>{label}</p>
                 </div>
               ))}
             </div>
@@ -272,7 +265,7 @@ export default function LoginPage() {
           .responsive-auth-left {
             flex: 1 !important;
             border-right: none !important;
-            padding: 40px 24px !important;
+            padding: 32px 16px !important;
           }
         }
       `}</style>

@@ -75,32 +75,32 @@ export default function LandingPage() {
         {/* ──────────────── NAV ──────────────── */}
         <header style={{
           position: "fixed", top: 0, left: 0, right: 0, zIndex: 100,
-          height: "64px",
+          height: "56px",
           display: "flex", alignItems: "center",
           borderBottom: scrolled ? "1px solid var(--c-border-1)" : "1px solid transparent",
-          background: scrolled ? "rgba(8, 9, 15, 0.75)" : "transparent",
-          backdropFilter: scrolled ? "blur(24px)" : "none",
-          transition: "all var(--t-base)",
+          background: scrolled ? "rgba(15, 17, 23, 0.85)" : "transparent",
+          backdropFilter: scrolled ? "blur(8px)" : "none",
+          transition: "all var(--t-fast)",
         }}>
           <div className="container" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
             {/* Logo */}
             <Link href="/" style={{ display: "flex", alignItems: "center", textDecoration: "none" }}>
-              <Logo size={28} />
+              <Logo size={24} />
             </Link>
 
             {/* Nav links */}
-            <nav style={{ display: "flex", gap: "4px" }} className="desktop-only-nav">
+            <nav style={{ display: "flex", gap: "2px" }} className="desktop-only-nav">
               {NAV_LINKS.map(l => (
-                <a key={l.label} href={l.href} className="btn btn-ghost" style={{ fontSize: "13.5px", fontWeight: 500 }}>{l.label}</a>
+                <a key={l.label} href={l.href} className="btn btn-ghost" style={{ fontSize: "12.5px", fontWeight: 500, padding: "6px 10px" }}>{l.label}</a>
               ))}
             </nav>
 
             {/* Actions */}
-            <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-              <Link href="/login"><button className="btn btn-ghost" style={{ fontSize: "13.5px", fontWeight: 500 }}>Sign in</button></Link>
+            <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+              <Link href="/login"><button className="btn btn-ghost" style={{ fontSize: "12.5px", fontWeight: 500, padding: "6px 10px" }}>Sign in</button></Link>
               <Link href="/signup">
-                <button className="btn btn-primary" style={{ fontSize: "13.5px", padding: "10px 20px" }}>
-                  Get started <ArrowRight size={14} />
+                <button className="btn btn-primary" style={{ fontSize: "12px", padding: "6px 12px" }}>
+                  Get Started <ArrowRight size={13} style={{ marginLeft: "2px" }} />
                 </button>
               </Link>
             </div>
@@ -108,84 +108,75 @@ export default function LandingPage() {
         </header>
 
         {/* ──────────────── HERO ──────────────── */}
-        <section style={{ paddingTop: "160px", paddingBottom: "100px", textAlign: "center" }}>
+        <section style={{ paddingTop: "140px", paddingBottom: "80px", textAlign: "center" }}>
           <div className="container-sm">
             {/* Eyebrow */}
-            <div className="animate-up" style={{ marginBottom: "28px" }}>
-              <span className="badge badge-secondary" style={{ padding: "6px 16px", fontSize: "12px", border: "1px solid var(--c-secondary-border)" }}>
-                <Sparkles size={12} style={{ marginRight: "4px" }} /> Powered by OpenRouter AI
+            <div className="animate-up" style={{ marginBottom: "20px" }}>
+              <span className="badge badge-secondary" style={{ padding: "4px 10px", fontSize: "11px", border: "1px solid var(--c-secondary-border)" }}>
+                <Sparkles size={11} style={{ marginRight: "3px" }} /> Powered by OpenRouter AI
               </span>
             </div>
 
             {/* Headline */}
             <h1 className="animate-up-1 font-display" style={{
-              fontSize: "clamp(48px, 7.5vw, 88px)",
-              fontWeight: 800,
-              lineHeight: 1.02,
-              letterSpacing: "-0.03em",
-              marginBottom: "28px",
+              fontSize: "clamp(36px, 6vw, 68px)",
+              fontWeight: 600,
+              lineHeight: 1.05,
+              letterSpacing: "-0.02em",
+              marginBottom: "20px",
               color: "var(--c-text-primary)"
             }}>
               Study smarter,{" "}
-              <span className="headline-gradient" style={{ fontStyle: "italic", fontFamily: "var(--font-editorial)", fontWeight: 400 }}>sleep better,</span>{" "}
+              <span className="headline-gradient" style={{ fontStyle: "italic", fontWeight: 400 }}>sleep better,</span>{" "}
               <br />and actually achieve.
             </h1>
 
             {/* Sub */}
             <p className="animate-up-2" style={{
-              fontSize: "17.5px",
+              fontSize: "15px",
               color: "var(--c-text-secondary)",
-              lineHeight: 1.75,
-              maxWidth: "540px",
-              margin: "0 auto 44px",
+              lineHeight: 1.6,
+              maxWidth: "460px",
+              margin: "0 auto 32px",
             }}>
               Chronova is an AI that understands your life — not just your syllabus.
               It builds, adapts, and defends your schedule so you can focus on the work.
             </p>
 
             {/* CTAs */}
-            <div className="animate-up-3" style={{ display: "flex", gap: "14px", justifyContent: "center", flexWrap: "wrap", marginBottom: "20px" }}>
+            <div className="animate-up-3" style={{ display: "flex", gap: "10px", justifyContent: "center", flexWrap: "wrap", marginBottom: "16px" }}>
               <Link href="/signup">
-                <button id="hero-start-btn" className="btn btn-primary btn-primary-lg">
-                  Start for free <ArrowRight size={16} />
+                <button id="hero-start-btn" className="btn btn-primary" style={{ padding: "10px 20px", fontSize: "13px" }}>
+                  Start for Free <ArrowRight size={14} style={{ marginLeft: "2px" }} />
                 </button>
               </Link>
               <a href="#demo">
-                <button className="btn btn-secondary" style={{ padding: "14px 26px", borderRadius: "var(--r-lg)", fontSize: "15px", display: "flex", alignItems: "center", gap: "8px" }}>
-                  <Play size={15} /> See sandbox demo
+                <button className="btn btn-secondary" style={{ padding: "10px 20px", borderRadius: "var(--r-md)", fontSize: "13px", display: "flex", alignItems: "center", gap: "6px" }}>
+                  <Play size={12} fill="currentColor" /> See Sandbox Demo
                 </button>
               </a>
             </div>
 
-            <p className="animate-up-4" style={{ fontSize: "12px", color: "var(--c-text-tertiary)", fontWeight: 500 }}>
+            <p className="animate-up-4" style={{ fontSize: "11px", color: "var(--c-text-tertiary)", fontWeight: 500 }}>
               Free to start · No credit card required · AI active
             </p>
           </div>
 
           {/* Immersive Mockup Wrapper */}
-          <div className="container animate-up-4" style={{ position: "relative", marginTop: "32px" }}>
-            {/* Glowing background behind mockup */}
-            <div style={{
-              position: "absolute",
-              top: "10%", left: "15%", right: "15%", bottom: "20%",
-              background: "radial-gradient(circle, rgba(139, 92, 246, 0.16) 0%, transparent 70%)",
-              filter: "blur(60px)",
-              pointerEvents: "none",
-              zIndex: -1
-            }} />
+          <div className="container animate-up-4" style={{ position: "relative", marginTop: "24px" }}>
             <LandingHeroPreview />
           </div>
 
           {/* Stats grid */}
-          <div className="container animate-up-4" style={{ marginTop: "80px" }}>
+          <div className="container animate-up-4" style={{ marginTop: "64px" }}>
             <div style={{
-              display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "16px",
-              maxWidth: "880px", margin: "0 auto"
+              display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "12px",
+              maxWidth: "800px", margin: "0 auto"
             }} className="responsive-stats-grid">
               {STATS.map(({ value, label }) => (
-                <div key={label} className="card" style={{ padding: "26px 20px", textAlign: "center", background: "rgba(15,17,26,0.55)", border: "1px solid var(--c-border-1)", backdropFilter: "blur(12px)" }}>
-                  <p style={{ fontFamily: "var(--font-display)", fontSize: "28px", fontWeight: 800, color: "var(--c-text-primary)", letterSpacing: "-0.03em" }}>{value}</p>
-                  <p style={{ fontSize: "12px", color: "var(--c-text-tertiary)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.04em", marginTop: "6px" }}>{label}</p>
+                <div key={label} className="card" style={{ padding: "20px 16px", textAlign: "center" }}>
+                  <p style={{ fontFamily: "var(--font-display)", fontSize: "22px", fontWeight: 600, color: "var(--c-text-primary)", letterSpacing: "-0.015em" }}>{value}</p>
+                  <p style={{ fontSize: "10.5px", color: "var(--c-text-tertiary)", fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.02em", marginTop: "4px" }}>{label}</p>
                 </div>
               ))}
             </div>
@@ -193,15 +184,15 @@ export default function LandingPage() {
         </section>
 
         {/* ──────────────── FEATURES ──────────────── */}
-        <section id="features" style={{ padding: "120px 0", borderTop: "1px solid var(--c-border-1)" }}>
+        <section id="features" style={{ padding: "80px 0", borderTop: "1px solid var(--c-border-1)" }}>
           <div className="container">
             {/* Section header */}
-            <div style={{ maxWidth: "560px", marginBottom: "48px" }}>
-              <span className="eyebrow" style={{ marginBottom: "18px", display: "flex" }}>For Students</span>
-              <h2 className="font-display" style={{ fontSize: "clamp(32px, 4vw, 44px)", fontWeight: 800, lineHeight: 1.12, letterSpacing: "-0.03em", marginBottom: "18px" }}>
+            <div style={{ maxWidth: "480px", marginBottom: "36px" }}>
+              <span className="eyebrow" style={{ marginBottom: "12px", display: "flex" }}>For Students</span>
+              <h2 className="font-display" style={{ fontSize: "clamp(26px, 3.5vw, 36px)", fontWeight: 600, lineHeight: 1.15, letterSpacing: "-0.02em", marginBottom: "12px" }}>
                 Your schedule, finally as smart as you are.
               </h2>
-              <p style={{ fontSize: "16px", color: "var(--c-text-secondary)", lineHeight: 1.7 }}>
+              <p style={{ fontSize: "13.5px", color: "var(--c-text-secondary)", lineHeight: 1.6 }}>
                 Four core dimensions designed in tandem to give you back your study rhythm, focus, and confidence.
               </p>
             </div>
@@ -212,11 +203,11 @@ export default function LandingPage() {
         </section>
 
         {/* ──────────────── HOW IT WORKS ──────────────── */}
-        <section id="how" style={{ padding: "120px 0", borderTop: "1px solid var(--c-border-1)" }}>
+        <section id="how" style={{ padding: "80px 0", borderTop: "1px solid var(--c-border-1)" }}>
           <div className="container">
-            <div style={{ textAlign: "center", maxWidth: "520px", margin: "0 auto 48px" }}>
-              <span className="eyebrow" style={{ justifyContent: "center", marginBottom: "18px", display: "flex" }}>How It Works</span>
-              <h2 className="font-display" style={{ fontSize: "clamp(30px, 4vw, 42px)", fontWeight: 800, letterSpacing: "-0.03em", lineHeight: 1.15 }}>
+            <div style={{ textAlign: "center", maxWidth: "440px", margin: "0 auto 36px" }}>
+              <span className="eyebrow" style={{ justifyContent: "center", marginBottom: "12px", display: "flex" }}>How It Works</span>
+              <h2 className="font-display" style={{ fontSize: "clamp(24px, 3.5vw, 34px)", fontWeight: 600, letterSpacing: "-0.02em", lineHeight: 1.2 }}>
                 From zero to a complete plan in minutes
               </h2>
             </div>
@@ -226,14 +217,14 @@ export default function LandingPage() {
         </section>
 
         {/* ──────────────── LIVE TIMETABLE DEMO ──────────────── */}
-        <section id="demo" style={{ padding: "120px 0", borderTop: "1px solid var(--c-border-1)", background: "rgba(8, 9, 15, 0.45)" }}>
+        <section id="demo" style={{ padding: "80px 0", borderTop: "1px solid var(--c-border-1)", background: "var(--c-surface-0)" }}>
           <div className="container">
-            <div style={{ textAlign: "center", maxWidth: "600px", margin: "0 auto 64px" }}>
-              <span className="eyebrow" style={{ justifyContent: "center", marginBottom: "18px", display: "flex" }}>Interactive Sandbox</span>
-              <h2 className="font-display" style={{ fontSize: "clamp(30px, 4vw, 42px)", fontWeight: 800, letterSpacing: "-0.03em", lineHeight: 1.15 }}>
+            <div style={{ textAlign: "center", maxWidth: "520px", margin: "0 auto 48px" }}>
+              <span className="eyebrow" style={{ justifyContent: "center", marginBottom: "12px", display: "flex" }}>Interactive Sandbox</span>
+              <h2 className="font-display" style={{ fontSize: "clamp(24px, 3.5vw, 34px)", fontWeight: 600, letterSpacing: "-0.02em", lineHeight: 1.2 }}>
                 Experience the scheduling engine
               </h2>
-              <p style={{ fontSize: "15.5px", color: "var(--c-text-secondary)", marginTop: "14px", lineHeight: 1.65 }}>
+              <p style={{ fontSize: "13.5px", color: "var(--c-text-secondary)", marginTop: "10px", lineHeight: 1.6 }}>
                 Click the simulation actions below to observe how the AI dynamically handles subject prioritizing, cognitive breaks, and mental fatigue blocks.
               </p>
             </div>
@@ -243,52 +234,52 @@ export default function LandingPage() {
         </section>
 
         {/* ──────────────── INSTITUTIONS ──────────────── */}
-        <section id="institutions" style={{ padding: "120px 0", borderTop: "1px solid var(--c-border-1)" }}>
+        <section id="institutions" style={{ padding: "80px 0", borderTop: "1px solid var(--c-border-1)" }}>
           <div className="container">
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "80px", alignItems: "start" }} className="responsive-institutions-grid">
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "60px", alignItems: "start" }} className="responsive-institutions-grid">
               {/* Left */}
               <div>
-                <span className="eyebrow" style={{ marginBottom: "18px", display: "flex" }}>For Institutions</span>
-                <h2 className="font-display" style={{ fontSize: "clamp(30px, 3.5vw, 42px)", fontWeight: 800, letterSpacing: "-0.03em", lineHeight: 1.15, marginBottom: "22px" }}>
+                <span className="eyebrow" style={{ marginBottom: "12px", display: "flex" }}>For Institutions</span>
+                <h2 className="font-display" style={{ fontSize: "clamp(24px, 3vw, 34px)", fontWeight: 600, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: "16px" }}>
                   Timetables that used to take days. Now take four minutes.
                 </h2>
-                <p style={{ fontSize: "15.5px", color: "var(--c-text-secondary)", lineHeight: 1.75, marginBottom: "36px" }}>
+                <p style={{ fontSize: "13.5px", color: "var(--c-text-secondary)", lineHeight: 1.6, marginBottom: "24px" }}>
                   Chronova's institution engine takes your constraints — teachers, subjects, rooms, age groups — and produces a conflict-free, pedagogically sound timetable using AI.
                 </p>
-                <div style={{ display: "flex", flexDirection: "column", gap: "14px", marginBottom: "40px" }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginBottom: "28px" }}>
                   {["No more spreadsheet chaos", "Conflict detection built in", "Export-ready in one click", "Supports 50+ batches"].map(f => (
-                    <div key={f} style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                      <CheckCircle size={16} color="var(--c-success)" />
-                      <span style={{ fontSize: "14.5px", color: "var(--c-text-secondary)" }}>{f}</span>
+                    <div key={f} style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                      <CheckCircle size={14} color="var(--c-success)" />
+                      <span style={{ fontSize: "13.5px", color: "var(--c-text-secondary)" }}>{f}</span>
                     </div>
                   ))}
                 </div>
                 <Link href="/signup">
-                  <button className="btn btn-primary" style={{ padding: "12px 24px" }}>
-                    Try for your institution <ArrowRight size={15} />
+                  <button className="btn btn-primary" style={{ padding: "10px 20px" }}>
+                    Try for your institution <ArrowRight size={14} style={{ marginLeft: "2px" }} />
                   </button>
                 </Link>
               </div>
 
               {/* Right — feature list */}
-              <div style={{ display: "flex", flexDirection: "column", gap: "6px", padding: "16px 8px", background: "rgba(15,17,26,0.45)", border: "1px solid var(--c-border-1)" }} className="card">
+              <div style={{ display: "flex", flexDirection: "column", gap: "2px", padding: "10px 6px", background: "var(--c-surface-1)", border: "1px solid var(--c-border-1)" }} className="card">
                 {INSTITUTION_FEATURES.map(({ icon: Icon, title, desc }) => (
                   <div
                     key={title}
-                    style={{ padding: "18px 20px", borderRadius: "12px", display: "flex", gap: "18px", alignItems: "flex-start", transition: "all var(--t-base)", cursor: "default" }}
+                    style={{ padding: "12px 16px", borderRadius: "var(--r-md)", display: "flex", gap: "12px", alignItems: "flex-start", transition: "all var(--t-base)", cursor: "default" }}
                     onMouseEnter={e => {
-                      (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.03)";
+                      (e.currentTarget as HTMLElement).style.background = "var(--c-surface-2)";
                     }}
                     onMouseLeave={e => {
                       (e.currentTarget as HTMLElement).style.background = "transparent";
                     }}
                   >
-                    <div style={{ width: "38px", height: "38px", borderRadius: "10px", background: "rgba(139,92,246,0.08)", border: "1px solid var(--c-accent-border)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                      <Icon size={18} color="var(--c-accent-light)" />
+                    <div style={{ width: "30px", height: "30px", borderRadius: "var(--r-md)", background: "var(--c-surface-2)", border: "1px solid var(--c-border-2)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                      <Icon size={14} color="var(--c-text-secondary)" />
                     </div>
-                    <div>
-                      <p style={{ fontSize: "14px", fontWeight: 650, color: "var(--c-text-primary)" }}>{title}</p>
-                      <p style={{ fontSize: "13px", color: "var(--c-text-secondary)", lineHeight: 1.6, marginTop: "4px" }}>{desc}</p>
+                    <div style={{ flex: 1 }}>
+                      <p style={{ fontSize: "12.5px", fontWeight: 600, color: "var(--c-text-primary)" }}>{title}</p>
+                      <p style={{ fontSize: "11.5px", color: "var(--c-text-secondary)", lineHeight: 1.5, marginTop: "2px" }}>{desc}</p>
                     </div>
                   </div>
                 ))}
@@ -298,39 +289,39 @@ export default function LandingPage() {
         </section>
 
         {/* ──────────────── TESTIMONIALS ──────────────── */}
-        <section id="testimonials" style={{ padding: "120px 0", borderTop: "1px solid var(--c-border-1)" }}>
+        <section id="testimonials" style={{ padding: "80px 0", borderTop: "1px solid var(--c-border-1)" }}>
           <div className="container">
-            <div style={{ textAlign: "center", maxWidth: "500px", margin: "0 auto 64px" }}>
-              <span className="eyebrow" style={{ justifyContent: "center", marginBottom: "18px", display: "flex" }}>Testimonials</span>
-              <h2 className="font-display" style={{ fontSize: "clamp(30px, 4vw, 42px)", fontWeight: 800, letterSpacing: "-0.03em", lineHeight: 1.15 }}>
+            <div style={{ textAlign: "center", maxWidth: "440px", margin: "0 auto 48px" }}>
+              <span className="eyebrow" style={{ justifyContent: "center", marginBottom: "12px", display: "flex" }}>Testimonials</span>
+              <h2 className="font-display" style={{ fontSize: "clamp(24px, 3.5vw, 34px)", fontWeight: 600, letterSpacing: "-0.02em", lineHeight: 1.2 }}>
                 Students and schools that made the switch
               </h2>
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: "20px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "16px" }}>
               {TESTIMONIALS.map(({ body, author, role, rating }) => (
                 <div key={author} className="card card-hover" style={{
-                  padding: "32px",
-                  display: "flex", flexDirection: "column", justifyContent: "space-between", gap: "24px"
+                  padding: "24px",
+                  display: "flex", flexDirection: "column", justifyContent: "space-between", gap: "16px"
                 }}>
                   <div>
-                    <div style={{ display: "flex", gap: "4px", marginBottom: "18px" }}>
-                      {Array.from({ length: rating }).map((_, i) => <Star key={i} size={14} fill="var(--c-secondary)" color="var(--c-secondary)" />)}
+                    <div style={{ display: "flex", gap: "3px", marginBottom: "12px" }}>
+                      {Array.from({ length: rating }).map((_, i) => <Star key={i} size={12} fill="var(--c-orange)" color="var(--c-orange)" />)}
                     </div>
-                    <p style={{ fontSize: "14.5px", color: "var(--c-text-secondary)", lineHeight: 1.75, fontStyle: "italic" }}>"{body}"</p>
+                    <p style={{ fontSize: "12.5px", color: "var(--c-text-secondary)", lineHeight: 1.6, fontStyle: "italic" }}>"{body}"</p>
                   </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                     <div style={{
-                      width: "40px", height: "40px", borderRadius: "50%",
-                      background: "var(--c-accent-dim)", border: "1px solid var(--c-accent-border)",
+                      width: "32px", height: "32px", borderRadius: "50%",
+                      background: "var(--c-surface-2)", border: "1px solid var(--c-border-2)",
                       display: "flex", alignItems: "center", justifyContent: "center",
-                      fontSize: "13.5px", fontWeight: 700, color: "var(--c-accent-light)"
+                      fontSize: "12px", fontWeight: 600, color: "var(--c-text-primary)"
                     }}>
                       {author.split(" ").map(w => w[0]).join("").slice(0, 2)}
                     </div>
                     <div>
-                      <p style={{ fontSize: "14px", fontWeight: 700, color: "var(--c-text-primary)" }}>{author}</p>
-                      <p style={{ fontSize: "12px", color: "var(--c-text-tertiary)", marginTop: "2px", fontWeight: 500 }}>{role}</p>
+                      <p style={{ fontSize: "12.5px", fontWeight: 600, color: "var(--c-text-primary)" }}>{author}</p>
+                      <p style={{ fontSize: "11px", color: "var(--c-text-tertiary)", marginTop: "2px", fontWeight: 500 }}>{role}</p>
                     </div>
                   </div>
                 </div>
@@ -340,32 +331,32 @@ export default function LandingPage() {
         </section>
 
         {/* ──────────────── CTA ──────────────── */}
-        <section style={{ padding: "120px 0", borderTop: "1px solid var(--c-border-1)" }}>
+        <section style={{ padding: "80px 0", borderTop: "1px solid var(--c-border-1)" }}>
           <div className="container-sm" style={{ textAlign: "center" }}>
-            <span className="badge badge-orange" style={{ padding: "6px 16px", fontSize: "12px", marginBottom: "28px", display: "inline-flex" }}>
-              <Clock size={12} style={{ marginRight: "4px" }} /> Free forever plan available
+            <span className="badge badge-orange" style={{ padding: "4px 12px", fontSize: "11px", marginBottom: "20px", display: "inline-flex" }}>
+              <Clock size={11} style={{ marginRight: "3px" }} /> Free forever plan available
             </span>
             <h2 className="font-display" style={{
-              fontSize: "clamp(36px, 5.5vw, 64px)",
-              fontWeight: 900, letterSpacing: "-0.04em", lineHeight: 1.05,
-              marginBottom: "24px"
+              fontSize: "clamp(28px, 4.5vw, 48px)",
+              fontWeight: 600, letterSpacing: "-0.02em", lineHeight: 1.1,
+              marginBottom: "16px"
             }}>
               Build the schedule you've
               <br />always needed.
             </h2>
-            <p style={{ fontSize: "16.5px", color: "var(--c-text-secondary)", lineHeight: 1.75, marginBottom: "44px" }}>
+            <p style={{ fontSize: "13.5px", color: "var(--c-text-secondary)", lineHeight: 1.6, marginBottom: "32px" }}>
               Join 50,000+ students and 2,100 institutions who stopped guessing
               <br />and started actually planning.
             </p>
-            <div style={{ display: "flex", gap: "14px", justifyContent: "center", flexWrap: "wrap" }}>
+            <div style={{ display: "flex", gap: "10px", justifyContent: "center", flexWrap: "wrap" }}>
               <Link href="/signup">
-                <button id="cta-start-btn" className="btn btn-primary btn-primary-lg">
-                  Create my free account <ArrowRight size={16} />
+                <button id="cta-start-btn" className="btn btn-primary" style={{ padding: "10px 20px" }}>
+                  Create My Free Account <ArrowRight size={14} style={{ marginLeft: "2px" }} />
                 </button>
               </Link>
               <Link href="/login">
-                <button className="btn btn-secondary" style={{ padding: "14px 26px", borderRadius: "var(--r-lg)", fontSize: "15px" }}>
-                  Sign in instead
+                <button className="btn btn-secondary" style={{ padding: "10px 20px", borderRadius: "var(--r-md)", fontSize: "13px" }}>
+                  Sign In Instead
                 </button>
               </Link>
             </div>
@@ -373,15 +364,15 @@ export default function LandingPage() {
         </section>
 
         {/* ──────────────── FOOTER ──────────────── */}
-        <footer style={{ borderTop: "1px solid var(--c-border-1)", padding: "40px 0", background: "rgba(3,3,7,0.3)" }}>
-          <div className="container" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "20px" }}>
-            <Logo size={26} />
-            <p style={{ fontSize: "13px", color: "var(--c-text-tertiary)", fontWeight: 500 }}>
+        <footer style={{ borderTop: "1px solid var(--c-border-1)", padding: "32px 0", background: "var(--c-surface-0)" }}>
+          <div className="container" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "16px" }}>
+            <Logo size={22} />
+            <p style={{ fontSize: "12px", color: "var(--c-text-tertiary)", fontWeight: 500 }}>
               © 2026 Chronova AI · Built for students everywhere
             </p>
-            <div style={{ display: "flex", gap: "6px" }}>
+            <div style={{ display: "flex", gap: "4px" }}>
               {["Privacy", "Terms", "Contact"].map(l => (
-                <a key={l} href="#" className="btn btn-ghost" style={{ fontSize: "13px", padding: "6px 12px", fontWeight: 500 }}>{l}</a>
+                <a key={l} href="#" className="btn btn-ghost" style={{ fontSize: "12px", padding: "4px 8px", fontWeight: 500 }}>{l}</a>
               ))}
             </div>
           </div>
@@ -397,7 +388,7 @@ export default function LandingPage() {
             }
             .responsive-institutions-grid {
               grid-template-columns: 1fr !important;
-              gap: 40px !important;
+              gap: 30px !important;
             }
           }
         `}</style>

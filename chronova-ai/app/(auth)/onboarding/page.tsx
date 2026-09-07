@@ -96,40 +96,39 @@ export default function OnboardingPage() {
   const progress = ((step + 1) / STEPS.length) * 100;
 
   return (
-    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", padding: "40px 24px" }} className="page-bg animate-fade">
-      <div className="page-content" style={{ width: "100%", maxWidth: "540px" }}>
+    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", padding: "32px 16px" }} className="page-bg animate-fade">
+      <div className="page-content" style={{ width: "100%", maxWidth: "480px" }}>
 
         {/* Logo */}
-        <div style={{ textAlign: "center", marginBottom: "36px" }}>
-          <Logo size={32} />
+        <div style={{ textAlign: "center", marginBottom: "24px" }}>
+          <Logo size={24} />
         </div>
 
         {/* Onboarding Container */}
-        <div className="card" style={{ padding: "36px", boxShadow: "var(--sh-lg)" }}>
+        <div className="card" style={{ padding: "28px" }}>
 
           {/* Step indicator header */}
-          <div style={{ marginBottom: "24px" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px" }}>
-              <h1 style={{ fontFamily: "var(--font-display)", fontSize: "20px", fontWeight: 800, letterSpacing: "-0.015em", color: "var(--c-text-primary)" }}>
-                {STEPS[step]} Settings
+          <div style={{ marginBottom: "16px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
+              <h1 style={{ fontFamily: "var(--font-display)", fontSize: "16px", fontWeight: 600, color: "var(--c-text-primary)" }}>
+                {STEPS[step]} Setup
               </h1>
-              <span style={{ fontSize: "12px", color: "var(--c-text-tertiary)", fontWeight: 700 }}>
+              <span style={{ fontSize: "10.5px", color: "var(--c-text-tertiary)", fontWeight: 600 }}>
                 STEP {step + 1} OF {STEPS.length}
               </span>
             </div>
             {/* Progress bar */}
-            <div className="progress-track">
+            <div className="progress-track" style={{ height: "3px" }}>
               <div className="progress-bar" style={{ width: `${progress}%` }} />
             </div>
           </div>
 
           {/* Stepper nodes */}
-          <div style={{ display: "flex", gap: "8px", marginBottom: "28px" }}>
+          <div style={{ display: "flex", gap: "6px", marginBottom: "20px" }}>
             {STEPS.map((s, i) => (
               <div key={s} style={{
-                flex: 1, height: "4px", borderRadius: "999px",
-                background: i <= step ? "var(--c-accent)" : "rgba(255,255,255,0.035)",
-                boxShadow: i <= step ? "0 0 10px var(--c-accent-glow)" : "none",
+                flex: 1, height: "3px", borderRadius: "999px",
+                background: i <= step ? "var(--c-accent)" : "rgba(255,255,255,0.03)",
                 transition: "all var(--t-base)"
               }} />
             ))}
@@ -137,21 +136,20 @@ export default function OnboardingPage() {
 
           {/* ── Step 0: Profile ── */}
           {step === 0 && (
-            <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
               <div>
-                <label className="form-label">Education level</label>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
+                <label className="form-label">Education Level</label>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
                   {EDUCATION_LEVELS.map((level) => {
                     const selected = educationLevel === level;
                     return (
                       <button key={level} onClick={() => setEducationLevel(level)} style={{
-                        padding: "8px 16px", borderRadius: "999px", fontSize: "13px", cursor: "pointer",
-                        transition: "all var(--t-base)",
-                        background: selected ? "rgba(139, 92, 246, 0.08)" : "transparent",
-                        border: selected ? "1px solid rgba(139, 92, 246, 0.25)" : "1px solid var(--c-border-1)",
-                        color: selected ? "var(--c-accent-light)" : "var(--c-text-secondary)",
-                        fontWeight: selected ? 600 : 400,
-                        boxShadow: selected ? "0 4px 12px rgba(139, 92, 246, 0.04)" : "none"
+                        padding: "6px 12px", borderRadius: "var(--r-md)", fontSize: "12.5px", cursor: "pointer",
+                        transition: "all var(--t-fast)",
+                        background: selected ? "var(--c-surface-3)" : "var(--c-surface-2)",
+                        border: "1px solid " + (selected ? "var(--c-text-secondary)" : "var(--c-border-1)"),
+                        color: selected ? "var(--c-text-primary)" : "var(--c-text-secondary)",
+                        fontWeight: selected ? 500 : 400
                       }}>{level}</button>
                     );
                   })}
@@ -161,73 +159,72 @@ export default function OnboardingPage() {
                 <label className="form-label" htmlFor="onboard-age">Age</label>
                 <input id="onboard-age" type="number" placeholder="e.g. 18"
                   value={age} onChange={(e) => setAge(e.target.value)}
-                  className="input" style={{ maxWidth: "160px" }} min={10} max={40} />
+                  className="input" style={{ maxWidth: "120px" }} min={10} max={40} />
               </div>
             </div>
           )}
 
           {/* ── Step 1: Subjects ── */}
           {step === 1 && (
-            <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
               <div>
-                <label className="form-label" style={{ marginBottom: "10px" }}>Quick-add subjects</label>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginBottom: "16px" }}>
+                <label className="form-label" style={{ marginBottom: "8px" }}>Quick-add subjects</label>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", marginBottom: "12px" }}>
                   {SAMPLE_SUBJECTS.map((s) => {
                     const added = !!subjects.find((sub) => sub.name === s);
                     return (
                       <button key={s} onClick={() => addSubject(s)} disabled={added} style={{
-                        padding: "7px 14px", borderRadius: "999px", fontSize: "12.5px",
+                        padding: "5px 10px", borderRadius: "var(--r-md)", fontSize: "12px",
                         cursor: added ? "default" : "pointer",
-                        background: added ? "rgba(139, 92, 246, 0.08)" : "rgba(255,255,255,0.02)",
-                        border: added ? "1px solid rgba(139, 92, 246, 0.25)" : "1px solid var(--c-border-1)",
-                        color: added ? "var(--c-accent-light)" : "var(--c-text-secondary)",
-                        transition: "all var(--t-base)",
-                        fontWeight: added ? 600 : 400
+                        background: added ? "var(--c-surface-3)" : "var(--c-surface-2)",
+                        border: "1px solid " + (added ? "var(--c-text-secondary)" : "var(--c-border-1)"),
+                        color: added ? "var(--c-text-primary)" : "var(--c-text-secondary)",
+                        transition: "all var(--t-fast)",
+                        fontWeight: added ? 500 : 400
                       }}>
-                        {added ? <Check size={11} style={{ display: "inline", marginRight: "4px" }} /> : <Plus size={11} style={{ display: "inline", marginRight: "4px" }} />}
+                        {added ? <Check size={10} style={{ display: "inline", marginRight: "3px" }} /> : <Plus size={10} style={{ display: "inline", marginRight: "3px" }} />}
                         {s}
                       </button>
                     );
                   })}
                 </div>
-                <div style={{ display: "flex", gap: "10px" }}>
+                <div style={{ display: "flex", gap: "8px" }}>
                   <input id="onboard-subject-input" type="text" placeholder="Add custom subject…"
                     value={newSubject} onChange={(e) => setNewSubject(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && addSubject(newSubject)}
                     className="input" />
-                  <button onClick={() => addSubject(newSubject)} className="btn btn-primary" style={{ padding: "11px 16px", borderRadius: "var(--r-md)" }}>
-                    <Plus size={18} />
+                  <button onClick={() => addSubject(newSubject)} className="btn btn-primary" style={{ padding: "8px 12px" }}>
+                    <Plus size={14} />
                   </button>
                 </div>
               </div>
 
               {subjects.length > 0 && (
-                <div style={{ borderTop: "1px solid var(--c-border-1)", paddingTop: "16px" }}>
-                  <label className="form-label" style={{ marginBottom: "10px" }}>Your subjects — tap to mark as weak (needs focus)</label>
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
+                <div style={{ borderTop: "1px solid var(--c-border-1)", paddingTop: "12px" }}>
+                  <label className="form-label" style={{ marginBottom: "8px" }}>Your subjects — tap to mark as weak (needs focus)</label>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
                     {subjects.map((s) => {
                       const isWeak = weakSubjects.includes(s.name);
                       return (
                         <div key={s.name} style={{
-                          display: "flex", alignItems: "center", gap: "8px",
-                          padding: "6px 14px", borderRadius: "999px",
-                          background: isWeak ? "rgba(244, 63, 94, 0.08)" : `${s.color}16`,
-                          border: `1px solid ${isWeak ? "rgba(244, 63, 94, 0.25)" : s.color + "44"}`,
-                          boxShadow: isWeak ? "0 4px 12px rgba(244, 63, 94, 0.05)" : "none",
-                          transition: "all var(--t-base)"
+                          display: "flex", alignItems: "center", gap: "6px",
+                          padding: "4px 10px", borderRadius: "var(--r-md)",
+                          background: isWeak ? "rgba(239, 68, 68, 0.04)" : "var(--c-surface-2)",
+                          border: `1px solid ${isWeak ? "rgba(239, 68, 68, 0.15)" : "var(--c-border-1)"}`,
+                          transition: "all var(--t-fast)"
                         }}>
-                          <div style={{ width: "7px", height: "7px", borderRadius: "50%", background: isWeak ? "var(--c-orange)" : s.color, boxShadow: isWeak ? "0 0 8px var(--c-orange)" : "none" }} />
-                          <button onClick={() => toggleWeak(s.name)} style={{ background: "none", border: "none", color: "var(--c-text-primary)", cursor: "pointer", fontSize: "13px", fontWeight: 500 }}>
+                          <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: isWeak ? "var(--c-danger)" : s.color }} />
+                          <button onClick={() => toggleWeak(s.name)} style={{ background: "none", border: "none", color: "var(--c-text-primary)", cursor: "pointer", fontSize: "12.5px", fontWeight: 500 }}>
                             {s.name}
                           </button>
                           <button onClick={() => removeSubject(s.name)} style={{ background: "none", border: "none", color: "var(--c-text-tertiary)", cursor: "pointer", display: "flex" }}>
-                            <X size={13} />
+                            <X size={12} />
                           </button>
                         </div>
                       );
                     })}
                   </div>
-                  <p style={{ fontSize: "11.5px", color: "var(--c-text-tertiary)", marginTop: "10px", fontWeight: 500 }}>Red = weak subject (Chronova schedules these earlier in the day)</p>
+                  <p style={{ fontSize: "11px", color: "var(--c-text-tertiary)", marginTop: "8px" }}>Red dots represent weak subjects. Chronova will prioritize studying them.</p>
                 </div>
               )}
             </div>
@@ -235,38 +232,38 @@ export default function OnboardingPage() {
 
           {/* ── Step 2: Schedule ── */}
           {step === 2 && (
-            <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-              <div style={{ padding: "20px", background: "rgba(255,255,255,0.015)", borderRadius: "14px", border: "1px solid var(--c-border-1)", backdropFilter: "blur(8px)" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "16px" }}>
-                  <Moon size={16} color="var(--c-accent-light)" />
-                  <label className="form-label" style={{ margin: 0 }}>Sleep schedule</label>
+            <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+              <div style={{ padding: "14px 16px", background: "var(--c-surface-1)", borderRadius: "var(--r-lg)", border: "1px solid var(--c-border-1)" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px" }}>
+                  <Moon size={14} color="var(--c-text-secondary)" />
+                  <label className="form-label" style={{ margin: 0 }}>Sleep Schedule</label>
                 </div>
-                <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+                <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
                   <div style={{ flex: 1 }}>
-                    <p style={{ fontSize: "11px", color: "var(--c-text-tertiary)", fontWeight: 600, marginBottom: "6px" }}>Bedtime</p>
+                    <p style={{ fontSize: "10.5px", color: "var(--c-text-tertiary)", fontWeight: 500, marginBottom: "4px" }}>Bedtime</p>
                     <input type="time" value={sleepStart} onChange={(e) => setSleepStart(e.target.value)} className="input" />
                   </div>
-                  <span style={{ color: "var(--c-text-tertiary)", fontSize: "14px", marginTop: "16px" }}>→</span>
+                  <span style={{ color: "var(--c-text-tertiary)", fontSize: "12.5px", marginTop: "14px" }}>→</span>
                   <div style={{ flex: 1 }}>
-                    <p style={{ fontSize: "11px", color: "var(--c-text-tertiary)", fontWeight: 600, marginBottom: "6px" }}>Wake up</p>
+                    <p style={{ fontSize: "10.5px", color: "var(--c-text-tertiary)", fontWeight: 500, marginBottom: "4px" }}>Wake Up</p>
                     <input type="time" value={sleepEnd} onChange={(e) => setSleepEnd(e.target.value)} className="input" />
                   </div>
                 </div>
               </div>
 
-              <div style={{ padding: "20px", background: "rgba(255,255,255,0.015)", borderRadius: "14px", border: "1px solid var(--c-border-1)", backdropFilter: "blur(8px)" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "16px" }}>
-                  <BookOpen size={16} color="var(--c-secondary-light)" />
-                  <label className="form-label" style={{ margin: 0 }}>College / School hours</label>
+              <div style={{ padding: "14px 16px", background: "var(--c-surface-1)", borderRadius: "var(--r-lg)", border: "1px solid var(--c-border-1)" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px" }}>
+                  <BookOpen size={14} color="var(--c-text-secondary)" />
+                  <label className="form-label" style={{ margin: 0 }}>College / School Hours</label>
                 </div>
-                <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+                <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
                   <div style={{ flex: 1 }}>
-                    <p style={{ fontSize: "11px", color: "var(--c-text-tertiary)", fontWeight: 600, marginBottom: "6px" }}>Start</p>
+                    <p style={{ fontSize: "10.5px", color: "var(--c-text-tertiary)", fontWeight: 500, marginBottom: "4px" }}>Start</p>
                     <input type="time" value={collegeStart} onChange={(e) => setCollegeStart(e.target.value)} className="input" />
                   </div>
-                  <span style={{ color: "var(--c-text-tertiary)", fontSize: "14px", marginTop: "16px" }}>→</span>
+                  <span style={{ color: "var(--c-text-tertiary)", fontSize: "12.5px", marginTop: "14px" }}>→</span>
                   <div style={{ flex: 1 }}>
-                    <p style={{ fontSize: "11px", color: "var(--c-text-tertiary)", fontWeight: 600, marginBottom: "6px" }}>End</p>
+                    <p style={{ fontSize: "10.5px", color: "var(--c-text-tertiary)", fontWeight: 500, marginBottom: "4px" }}>End</p>
                     <input type="time" value={collegeEnd} onChange={(e) => setCollegeEnd(e.target.value)} className="input" />
                   </div>
                 </div>
@@ -277,8 +274,8 @@ export default function OnboardingPage() {
           {/* ── Step 3: Goals ── */}
           {step === 3 && (
             <div>
-              <label className="form-label" style={{ marginBottom: "14px", display: "block" }}>Select all that apply</label>
-              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+              <label className="form-label" style={{ marginBottom: "10px", display: "block" }}>Select academic goals</label>
+              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
                 {GOAL_OPTIONS.map((goal) => {
                   const selected = goals.includes(goal);
                   return (
@@ -286,26 +283,23 @@ export default function OnboardingPage() {
                       key={goal} 
                       onClick={() => toggleGoal(goal)} 
                       style={{
-                        display: "flex", alignItems: "center", gap: "14px",
-                        padding: "14px 16px", borderRadius: "12px", textAlign: "left",
-                        cursor: "pointer", transition: "all var(--t-base)",
-                        background: selected ? "rgba(139, 92, 246, 0.08)" : "rgba(255,255,255,0.01)",
-                        border: selected ? "1px solid rgba(139, 92, 246, 0.25)" : "1px solid var(--c-border-1)",
+                        display: "flex", alignItems: "center", gap: "10px",
+                        padding: "10px 14px", borderRadius: "var(--r-md)", textAlign: "left",
+                        cursor: "pointer", transition: "all var(--t-fast)",
+                        background: selected ? "var(--c-surface-2)" : "transparent",
+                        border: selected ? "1px solid var(--c-border-2)" : "1px solid var(--c-border-1)",
                         color: "var(--c-text-primary)",
-                        boxShadow: selected ? "0 4px 12px rgba(139, 92, 246, 0.04)" : "none"
                       }}
                     >
                       <div style={{
-                        width: "20px", height: "20px", borderRadius: "6px", flexShrink: 0,
-                        background: selected ? "var(--c-accent)" : "rgba(255,255,255,0.035)",
+                        width: "16px", height: "16px", borderRadius: "var(--r-sm)", flexShrink: 0,
+                        background: selected ? "var(--c-accent)" : "transparent",
                         border: selected ? "1px solid transparent" : "1px solid var(--c-border-2)",
                         display: "flex", alignItems: "center", justifyContent: "center",
-                        transition: "all var(--t-fast)",
-                        boxShadow: selected ? "0 0 8px var(--c-accent-glow)" : "none"
                       }}>
-                        {selected && <Check size={12} color="white" />}
+                        {selected && <Check size={10} color="white" />}
                       </div>
-                      <span style={{ fontSize: "14px", fontWeight: 500 }}>{goal}</span>
+                      <span style={{ fontSize: "13px", fontWeight: 500 }}>{goal}</span>
                     </button>
                   );
                 })}
@@ -314,26 +308,26 @@ export default function OnboardingPage() {
           )}
 
           {/* Navigation controls */}
-          <div style={{ display: "flex", gap: "10px", marginTop: "32px" }}>
+          <div style={{ display: "flex", gap: "8px", marginTop: "24px" }}>
             {step > 0 && (
-              <button onClick={() => setStep(step - 1)} className="btn btn-secondary" style={{ flex: 1, padding: "12px" }}>
-                <ChevronLeft size={16} /> Back
+              <button onClick={() => setStep(step - 1)} className="btn btn-secondary" style={{ flex: 1, padding: "10px" }}>
+                <ChevronLeft size={14} /> Back
               </button>
             )}
             {step < STEPS.length - 1 ? (
-              <button onClick={() => setStep(step + 1)} className="btn btn-primary" style={{ flex: 1, padding: "12px" }}>
-                Next <ChevronRight size={16} />
+              <button onClick={() => setStep(step + 1)} className="btn btn-primary" style={{ flex: 1, padding: "10px" }}>
+                Next <ChevronRight size={14} />
               </button>
             ) : (
-              <button onClick={handleFinish} disabled={loading} className="btn btn-primary" style={{ flex: 1, padding: "12px" }}>
-                {loading ? <><span className="btn-spinner" /> Setting up…</> : <><Sparkles size={16} /> Finish setup</>}
+              <button onClick={handleFinish} disabled={loading} className="btn btn-primary" style={{ flex: 1, padding: "10px" }}>
+                {loading ? "Setting up…" : "Finish Setup"}
               </button>
             )}
           </div>
         </div>
 
-        <p style={{ textAlign: "center", fontSize: "12.5px", color: "var(--c-text-tertiary)", marginTop: "24px", fontWeight: 500 }}>
-          Your data is private and never shared.
+        <p style={{ textAlign: "center", fontSize: "12px", color: "var(--c-text-tertiary)", marginTop: "16px" }}>
+          Your data is synchronized privately.
         </p>
       </div>
     </div>

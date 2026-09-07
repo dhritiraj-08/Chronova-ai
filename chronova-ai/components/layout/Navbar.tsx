@@ -4,23 +4,25 @@ import { useState, useEffect, useRef } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import {
   Bell, Search, Menu, X, Calendar, MessageSquare,
-  LayoutDashboard, BarChart2, Settings, User, LogOut,
-  Info, AlertTriangle, CheckCircle, Flame
+  Home as HomeIcon, BarChart2, Settings, User, LogOut,
+  Info, AlertTriangle, CheckCircle, Flame, Award,
+  BookOpen, Clock, FileText
 } from "lucide-react";
 import { useUIStore } from "@/lib/store/uiStore";
-import { useScheduleStore } from "@/lib/store/scheduleStore";
+import { useScheduleStore, OSNotification } from "@/lib/store/scheduleStore";
 import { createClient } from "@/lib/supabase/client";
 
 const PAGE_TITLES: Record<string, { title: string; sub: string }> = {
-  "/dashboard":       { title: "Dashboard",      sub: "Your study overview" },
-  "/calendar":        { title: "Calendar",        sub: "Manage your schedule" },
-  "/chat":            { title: "AI Coach",        sub: "Chat with Chronova" },
-  "/analytics":       { title: "Analytics",       sub: "Track your progress" },
+  "/dashboard":       { title: "Home",           sub: "Your actionable feed today" },
+  "/calendar":        { title: "My Schedule",    sub: "Academic planning engine" },
+  "/chat":            { title: "AI Assistant",   sub: "Chronova Academic Brain" },
+  "/exams":           { title: "Exams",          sub: "Test milestones and readiness" },
+  "/progress":        { title: "Progress",       sub: "Consistency & study analytics" },
   "/admin":           { title: "Admin Panel",     sub: "Institution management" },
   "/admin/timetable": { title: "Timetable",       sub: "Full institution timetable" },
   "/admin/teachers":  { title: "Teachers",        sub: "Manage teaching staff" },
   "/admin/classes":   { title: "Classes",         sub: "Batches & classrooms" },
-  "/settings":        { title: "Settings",        sub: "Preferences & account" },
+  "/settings":        { title: "Settings",        sub: "Preferences & schedule tuning" },
 };
 
 function getPageMeta(pathname: string) {
@@ -29,7 +31,7 @@ function getPageMeta(pathname: string) {
   for (const [key, val] of Object.entries(PAGE_TITLES)) {
     if (pathname.startsWith(key) && key !== "/") return val;
   }
-  return { title: "Chronova", sub: "" };
+  return { title: "Chronova OS", sub: "" };
 }
 
 export default function Navbar() {
@@ -39,62 +41,47 @@ export default function Navbar() {
   const supabase = createClient();
   
   const toggleSidebar = useUIStore(state => state.toggleSidebar);
-  const { events } = useScheduleStore();
+  const { 
+    events, 
+    exams, 
+    revisions,
+    notifications,
+    userName,
+    streak,
+    markNotificationRead,
+    deleteNotification,
+    clearAllNotifications
+  } = useScheduleStore();
 
-  // Dialog & Dropdown States
   const [showSearch, setShowSearch] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Coaching notifications state
-  const [notifications, setNotifications] = useState([
-    {
-      id: "1",
-      title: "Burnout Advisory",
-      body: "You scheduled 3 heavy sessions in a row today. Consider moving Revision to tomorrow.",
-      type: "warning",
-      time: "10m ago",
-      color: "var(--c-orange)"
-    },
-    {
-      id: "2",
-      title: "Streak Milestone!",
-      body: "Fantastic! You maintained a 7-day study streak. Keep up the high focus.",
-      type: "success",
-      time: "2h ago",
-      color: "var(--c-success)"
-    },
-    {
-      id: "3",
-      title: "Upcoming Session",
-      body: "Physics starts in 15 minutes. Take a quick stretch and grab some water.",
-      type: "info",
-      time: "15m ago",
-      color: "var(--c-secondary)"
-    }
-  ]);
+  // Search Results State
+  const [dbResults, setDbResults] = useState<{
+    subjects: any[];
+    notes: any[];
+    chatMessages: any[];
+  }>({ subjects: [], notes: [], chatMessages: [] });
 
-  // Click outside references
   const notificationsRef = useRef<HTMLDivElement>(null);
   const profileRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
-  // Close dropdowns on route changes
   useEffect(() => {
     setShowNotifications(false);
     setShowProfile(false);
     setShowSearch(false);
   }, [pathname]);
 
-  // Focus search input when modal opens
   useEffect(() => {
     if (showSearch) {
       setTimeout(() => searchInputRef.current?.focus(), 50);
     }
   }, [showSearch]);
 
-  // Click outside to close dropdowns
+  // Click outside listeners
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (notificationsRef.current && !notificationsRef.current.contains(event.target as Node)) {
@@ -108,7 +95,7 @@ export default function Navbar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Escape key to close search
+  // Escape key for search modal
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
       if (e.key === "Escape") {
@@ -119,23 +106,65 @@ export default function Navbar() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  // Quick navigation items for search
-  const QUICK_LINKS = [
-    { title: "Dashboard Overview", path: "/dashboard", desc: "See study stats and daily session check-offs", icon: LayoutDashboard },
-    { title: "Weekly Calendar", path: "/calendar", desc: "Manage calendar slots and study times", icon: Calendar },
-    { title: "AI Coach Companion", path: "/chat", desc: "Talk with Chronova for schedule adjustments", icon: MessageSquare },
-    { title: "Analytics Panel", path: "/analytics", desc: "Track progress charts and hours", icon: BarChart2 },
-    { title: "Account Settings", path: "/settings", desc: "Change preferences and system theme", icon: Settings },
-  ];
+  // Debounced search queries across subjects, notes (sessions), and chat history
+  useEffect(() => {
+    if (searchQuery.trim().length < 2) {
+      setDbResults({ subjects: [], notes: [], chatMessages: [] });
+      return;
+    }
 
-  // Search filter lists
-  const filteredLinks = QUICK_LINKS.filter(link =>
-    link.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    link.desc.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+    const delayDebounce = setTimeout(async () => {
+      const q = `%${searchQuery}%`;
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
 
+      // 1. Search subjects
+      const { data: subs } = await supabase
+        .from("subjects")
+        .select("*")
+        .eq("user_id", user.id)
+        .ilike("subject_name", q)
+        .limit(4);
+
+      // 2. Search chats
+      const { data: messages } = await supabase
+        .from("chat_messages")
+        .select("*")
+        .eq("user_id", user.id)
+        .ilike("content", q)
+        .limit(4);
+
+      // 3. Search notes in sessions table
+      const { data: sessionsWithNotes } = await supabase
+        .from("sessions")
+        .select("*")
+        .eq("user_id", user.id)
+        .ilike("notes", q)
+        .limit(4);
+
+      setDbResults({
+        subjects: subs || [],
+        chatMessages: messages || [],
+        notes: sessionsWithNotes || []
+      });
+    }, 250);
+
+    return () => clearTimeout(delayDebounce);
+  }, [searchQuery, supabase]);
+
+  // Client search mappings
   const filteredEvents = searchQuery.trim() === "" ? [] : events.filter(e =>
     e.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const filteredExams = searchQuery.trim() === "" ? [] : exams.filter(e =>
+    e.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    e.subject.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const filteredRevisions = searchQuery.trim() === "" ? [] : revisions.filter(e =>
+    e.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    e.subject.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const handleNavigate = (path: string) => {
@@ -144,19 +173,51 @@ export default function Navbar() {
     setSearchQuery("");
   };
 
-  const handleNavigateEvent = (eventId: string | number) => {
-    router.push("/calendar");
-    setShowSearch(false);
-    setSearchQuery("");
+  // Group notifications helper
+  const groupNotifications = (notifs: OSNotification[]) => {
+    const urgent: OSNotification[] = [];
+    const today: OSNotification[] = [];
+    const thisWeek: OSNotification[] = [];
+    const completed: OSNotification[] = [];
+
+    notifs.forEach(n => {
+      if (n.read) {
+        completed.push(n);
+        return;
+      }
+      
+      const isUrgent = n.text.toLowerCase().includes("warning") || 
+                       n.text.toLowerCase().includes("urgent") || 
+                       n.text.toLowerCase().includes("risk") || 
+                       n.text.toLowerCase().includes("missed");
+                       
+      if (isUrgent) {
+        urgent.push(n);
+        return;
+      }
+
+      let isToday = true;
+      if (n.time.includes("Yesterday") || n.time.includes("/") || n.time.includes("days ago") || n.time.includes("ago") && (n.time.includes("h") && parseInt(n.time) >= 24)) {
+        isToday = false;
+      }
+
+      if (isToday) {
+        today.push(n);
+      } else {
+        thisWeek.push(n);
+      }
+    });
+
+    return { urgent, today, thisWeek, completed };
   };
 
-  // Notifications helpers
-  const dismissNotification = (id: string) => {
-    setNotifications(prev => prev.filter(n => n.id !== id));
-  };
+  const grouped = groupNotifications(notifications);
+  const unreadCount = notifications.filter(n => !n.read).length;
 
-  const clearAllNotifications = () => {
-    setNotifications([]);
+  const markAllAsRead = async () => {
+    for (const n of notifications) {
+      if (!n.read) await markNotificationRead(n.id);
+    }
   };
 
   const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
@@ -164,16 +225,16 @@ export default function Navbar() {
   return (
     <>
       <header style={{
-        height: "64px",
+        height: "56px",
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
         padding: "0 24px",
         borderBottom: "1px solid var(--c-border-1)",
-        background: "rgba(8, 9, 15, 0.72)",
-        backdropFilter: "blur(24px)",
+        background: "var(--c-surface-0)",
         flexShrink: 0,
-        position: "relative",
+        position: "sticky",
+        top: 0,
         zIndex: 10,
       }}>
         {/* Left actions */}
@@ -182,24 +243,24 @@ export default function Navbar() {
             onClick={toggleSidebar}
             className="btn btn-icon mobile-menu-btn"
             aria-label="Toggle Menu"
-            style={{ border: "none", background: "rgba(255,255,255,0.03)" }}
+            style={{ border: "none", background: "transparent" }}
           >
-            <Menu size={18} />
+            <Menu size={16} />
           </button>
 
           <div>
             <h1 style={{
               fontFamily: "var(--font-display)",
-              fontSize: "16px",
-              fontWeight: 700,
-              letterSpacing: "-0.015em",
+              fontSize: "14px",
+              fontWeight: 600,
+              letterSpacing: "-0.01em",
               lineHeight: 1.2,
               color: "var(--c-text-primary)"
             }}>
               {meta.title}
             </h1>
             {meta.sub && (
-              <p style={{ fontSize: "12px", color: "var(--c-text-tertiary)", marginTop: "2px" }} className="desktop-only-sub">
+              <p style={{ fontSize: "10.5px", color: "var(--c-text-tertiary)", marginTop: "1px" }} className="desktop-only-sub">
                 {meta.sub}
               </p>
             )}
@@ -208,17 +269,17 @@ export default function Navbar() {
 
         {/* Right actions */}
         <div style={{ display: "flex", alignItems: "center", gap: "8px", position: "relative" }}>
-          {/* Search trigger */}
+          {/* Search Trigger */}
           <button 
             onClick={() => setShowSearch(true)} 
             className="btn btn-icon" 
             aria-label="Search" 
             style={{ border: "none", background: "transparent" }}
           >
-            <Search size={16} />
+            <Search size={15} />
           </button>
 
-          {/* Notifications bell dropdown */}
+          {/* Notifications Dropdown */}
           <div style={{ position: "relative" }}>
             <button 
               onClick={() => {
@@ -229,86 +290,114 @@ export default function Navbar() {
               aria-label="Notifications" 
               style={{ position: "relative", border: "none", background: "transparent" }}
             >
-              <Bell size={16} />
-              {notifications.length > 0 && (
+              <Bell size={15} />
+              {unreadCount > 0 && (
                 <span style={{
-                  position: "absolute", top: "7px", right: "7px",
-                  width: "6px", height: "6px", borderRadius: "50%",
-                  background: "var(--c-orange)",
-                  boxShadow: "0 0 8px var(--c-orange), 0 0 4px var(--c-orange)"
+                  position: "absolute", top: "8px", right: "8px",
+                  width: "5px", height: "5px", borderRadius: "50%",
+                  background: "var(--c-orange)"
                 }} />
               )}
             </button>
 
-            {/* Notifications Dropdown card */}
             {showNotifications && (
               <div 
                 ref={notificationsRef}
                 style={{
-                  position: "absolute", right: 0, top: "45px",
-                  width: "360px", background: "rgba(15, 17, 26, 0.95)",
-                  border: "1px solid var(--c-border-2)", borderRadius: "14px",
-                  boxShadow: "var(--sh-lg)", backdropFilter: "blur(16px)",
-                  padding: "16px", zIndex: 100, display: "flex", flexDirection: "column", gap: "12px"
+                  position: "absolute", right: 0, top: "38px",
+                  width: "340px", background: "var(--c-surface-1)",
+                  border: "1px solid var(--c-border-1)", borderRadius: "var(--r-lg)",
+                  boxShadow: "var(--sh-lg)",
+                  padding: "12px", zIndex: 100, display: "flex", flexDirection: "column", gap: "10px"
                 }}
               >
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid var(--c-border-1)", paddingBottom: "10px" }}>
-                  <h4 style={{ fontSize: "14px", fontWeight: 700, fontFamily: "var(--font-display)" }}>Coaching Alerts</h4>
-                  {notifications.length > 0 && (
-                    <button 
-                      onClick={clearAllNotifications}
-                      style={{ background: "none", border: "none", color: "var(--c-text-tertiary)", fontSize: "11px", cursor: "pointer", fontWeight: 600 }}
-                      onMouseEnter={e => e.currentTarget.style.color = "var(--c-text-primary)"}
-                      onMouseLeave={e => e.currentTarget.style.color = "var(--c-text-tertiary)"}
-                    >
-                      Clear All
-                    </button>
-                  )}
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid var(--c-border-1)", paddingBottom: "8px" }}>
+                  <h4 style={{ fontSize: "12px", fontWeight: 600, fontFamily: "var(--font-display)" }}>Coaching Alerts ({unreadCount} unread)</h4>
+                  <div style={{ display: "flex", gap: "8px" }}>
+                    {unreadCount > 0 && (
+                      <button 
+                        onClick={markAllAsRead}
+                        style={{ background: "none", border: "none", color: "var(--c-accent-light)", fontSize: "10.5px", cursor: "pointer", fontWeight: 500 }}
+                      >
+                        Mark all read
+                      </button>
+                    )}
+                    {notifications.length > 0 && (
+                      <button 
+                        onClick={clearAllNotifications}
+                        style={{ background: "none", border: "none", color: "var(--c-text-tertiary)", fontSize: "10.5px", cursor: "pointer", fontWeight: 500 }}
+                      >
+                        Clear all
+                      </button>
+                    )}
+                  </div>
                 </div>
 
-                <div style={{ display: "flex", flexDirection: "column", gap: "8px", maxHeight: "280px", overflowY: "auto", paddingRight: "4px" }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: "8px", maxHeight: "280px", overflowY: "auto", paddingRight: "2px" }}>
                   {notifications.length === 0 ? (
-                    <div style={{ textAlign: "center", padding: "24px 0", color: "var(--c-text-tertiary)" }}>
-                      <p style={{ fontSize: "13px", fontWeight: 500 }}>No active alerts</p>
-                      <p style={{ fontSize: "11px", marginTop: "2px" }}>AI Coach will notify you of optimizations.</p>
+                    <div style={{ textAlign: "center", padding: "16px 0", color: "var(--c-text-tertiary)" }}>
+                      <p style={{ fontSize: "12px", fontWeight: 500 }}>No coaching logs</p>
+                      <p style={{ fontSize: "10.5px", marginTop: "2px" }}>Academic coach will notify you of optimizations.</p>
                     </div>
                   ) : (
-                    notifications.map(n => {
-                      return (
-                        <div 
-                          key={n.id} 
-                          style={{
-                            padding: "10px 12px", background: "rgba(255,255,255,0.015)",
-                            border: `1px solid var(--c-border-1)`, borderLeft: `3px solid ${n.color}`,
-                            borderRadius: "8px", position: "relative"
-                          }}
-                        >
-                          <button 
-                            onClick={() => dismissNotification(n.id)}
-                            style={{ position: "absolute", top: "8px", right: "8px", background: "none", border: "none", color: "var(--c-text-tertiary)", cursor: "pointer", display: "flex" }}
-                          >
-                            <X size={12} />
-                          </button>
-                          <div style={{ display: "flex", gap: "8px", alignItems: "flex-start", paddingRight: "14px" }}>
-                            <div>
-                              <p style={{ fontSize: "12px", fontWeight: 700, color: "var(--c-text-primary)" }}>{n.title}</p>
-                              <p style={{ fontSize: "11.5px", color: "var(--c-text-secondary)", marginTop: "3px", lineHeight: 1.4 }}>{n.body}</p>
-                              <span style={{ fontSize: "9px", color: "var(--c-text-tertiary)", marginTop: "6px", display: "inline-block" }}>{n.time}</span>
-                            </div>
+                    <>
+                      {/* Urgent */}
+                      {grouped.urgent.length > 0 && (
+                        <div>
+                          <p style={{ fontSize: "9px", fontWeight: 600, textTransform: "uppercase", color: "var(--c-orange)", letterSpacing: "0.05em", marginBottom: "4px" }}>Urgent Actions</p>
+                          <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                            {grouped.urgent.map(n => (
+                              <NotificationItem key={n.id} n={n} onRead={() => markNotificationRead(n.id)} onDelete={() => deleteNotification(n.id)} onAction={() => router.push(n.actionType === "recovery" ? "/dashboard" : "/calendar")} />
+                            ))}
                           </div>
                         </div>
-                      );
-                    })
+                      )}
+
+                      {/* Today */}
+                      {grouped.today.length > 0 && (
+                        <div style={{ marginTop: "2px" }}>
+                          <p style={{ fontSize: "9px", fontWeight: 600, textTransform: "uppercase", color: "var(--c-accent-light)", letterSpacing: "0.05em", marginBottom: "4px" }}>Today</p>
+                          <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                            {grouped.today.map(n => (
+                              <NotificationItem key={n.id} n={n} onRead={() => markNotificationRead(n.id)} onDelete={() => deleteNotification(n.id)} onAction={() => router.push("/calendar")} />
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* This Week */}
+                      {grouped.thisWeek.length > 0 && (
+                        <div style={{ marginTop: "2px" }}>
+                          <p style={{ fontSize: "9px", fontWeight: 600, textTransform: "uppercase", color: "var(--c-text-tertiary)", letterSpacing: "0.05em", marginBottom: "4px" }}>This Week</p>
+                          <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                            {grouped.thisWeek.map(n => (
+                              <NotificationItem key={n.id} n={n} onRead={() => markNotificationRead(n.id)} onDelete={() => deleteNotification(n.id)} onAction={() => router.push("/calendar")} />
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Completed / Read */}
+                      {grouped.completed.length > 0 && (
+                        <div style={{ marginTop: "2px", opacity: 0.6 }}>
+                          <p style={{ fontSize: "9px", fontWeight: 600, textTransform: "uppercase", color: "var(--c-success)", letterSpacing: "0.05em", marginBottom: "4px" }}>Completed Alerts</p>
+                          <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                            {grouped.completed.map(n => (
+                              <NotificationItem key={n.id} n={n} onRead={() => {}} onDelete={() => deleteNotification(n.id)} onAction={() => {}} />
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </>
                   )}
                 </div>
               </div>
             )}
           </div>
 
-          {/* Divider */}
-          <div style={{ width: "1px", height: "20px", background: "var(--c-border-1)", margin: "0 4px" }} />
+          <div style={{ width: "1px", height: "16px", background: "var(--c-border-1)", margin: "0 2px" }} />
 
-          {/* Profile tab / Avatar */}
+          {/* Profile User Dropdown */}
           <div style={{ position: "relative" }}>
             <div 
               onClick={() => {
@@ -316,79 +405,59 @@ export default function Navbar() {
                 setShowNotifications(false);
               }}
               style={{
-                width: "32px", height: "32px", borderRadius: "50%",
-                background: "var(--c-accent-dim)",
-                border: "1px solid var(--c-accent-border)",
+                width: "28px", height: "28px", borderRadius: "50%",
+                background: "var(--c-surface-2)",
+                border: "1px solid var(--c-border-2)",
                 display: "flex", alignItems: "center", justifyContent: "center",
-                fontSize: "12.5px", fontWeight: 700, color: "var(--c-accent-light)",
+                fontSize: "11px", fontWeight: 600, color: "var(--c-text-primary)",
                 cursor: "pointer",
                 transition: "all var(--t-fast)",
               }}
-              onMouseEnter={e => {
-                (e.currentTarget as HTMLElement).style.boxShadow = "0 0 12px var(--c-accent-glow)";
-                (e.currentTarget as HTMLElement).style.borderColor = "var(--c-accent-light)";
-              }}
-              onMouseLeave={e => {
-                if (!showProfile) {
-                  (e.currentTarget as HTMLElement).style.boxShadow = "none";
-                  (e.currentTarget as HTMLElement).style.borderColor = "var(--c-accent-border)";
-                }
-              }}
             >
-              U
+              {userName ? userName[0].toUpperCase() : "U"}
             </div>
 
-            {/* Profile Dropdown card */}
             {showProfile && (
               <div 
                 ref={profileRef}
                 style={{
-                  position: "absolute", right: 0, top: "45px",
-                  width: "240px", background: "rgba(15, 17, 26, 0.95)",
-                  border: "1px solid var(--c-border-2)", borderRadius: "14px",
-                  boxShadow: "var(--sh-lg)", backdropFilter: "blur(16px)",
-                  padding: "16px", zIndex: 100, display: "flex", flexDirection: "column", gap: "14px"
+                  position: "absolute", right: 0, top: "38px",
+                  width: "200px", background: "var(--c-surface-1)",
+                  border: "1px solid var(--c-border-1)", borderRadius: "var(--r-lg)",
+                  boxShadow: "var(--sh-lg)",
+                  padding: "10px", zIndex: 100, display: "flex", flexDirection: "column", gap: "8px"
                 }}
               >
-                {/* User Details */}
-                <div style={{ borderBottom: "1px solid var(--c-border-1)", paddingBottom: "10px" }}>
-                  <p style={{ fontSize: "13.5px", fontWeight: 700, color: "var(--c-text-primary)" }}>Alex Student</p>
-                  <p style={{ fontSize: "11.5px", color: "var(--c-text-tertiary)" }}>student@chronova.ai</p>
+                <div style={{ borderBottom: "1px solid var(--c-border-1)", paddingBottom: "6px" }}>
+                  <p style={{ fontSize: "12.5px", fontWeight: 600, color: "var(--c-text-primary)" }}>{userName || "Student"}</p>
                   
-                  <div style={{ display: "flex", alignItems: "center", gap: "6px", marginTop: "8px", background: "rgba(6,182,212,0.06)", border: "1px solid rgba(6,182,212,0.18)", padding: "4px 8px", borderRadius: "6px" }}>
-                    <Flame size={12} color="var(--c-secondary-light)" />
-                    <span style={{ fontSize: "11px", fontWeight: 700, color: "var(--c-secondary-light)" }}>7 Days Streak</span>
-                  </div>
+                  {streak > 0 && (
+                    <div style={{ display: "flex", alignItems: "center", gap: "4px", marginTop: "4px", background: "rgba(251,191,36,0.04)", border: "1px solid rgba(251,191,36,0.12)", padding: "2px 6px", borderRadius: "var(--r-sm)" }}>
+                      <Flame size={10} color="var(--c-warning)" />
+                      <span style={{ fontSize: "10px", fontWeight: 600, color: "var(--c-warning)" }}>{streak} Days Streak</span>
+                    </div>
+                  )}
                 </div>
 
-                {/* Dropdown Menu Links */}
-                <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
                   <button 
                     onClick={() => router.push("/settings")}
-                    style={{ display: "flex", alignItems: "center", gap: "8px", background: "none", border: "none", color: "var(--c-text-secondary)", fontSize: "12.5px", padding: "6px 8px", cursor: "pointer", borderRadius: "6px", width: "100%", textAlign: "left", transition: "all var(--t-fast)" }}
-                    onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.03)"; e.currentTarget.style.color = "var(--c-text-primary)"; }}
+                    style={{ display: "flex", alignItems: "center", gap: "6px", background: "none", border: "none", color: "var(--c-text-secondary)", fontSize: "12px", padding: "4px 6px", cursor: "pointer", borderRadius: "var(--r-sm)", width: "100%", textAlign: "left", transition: "all var(--t-fast)" }}
+                    onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.02)"; e.currentTarget.style.color = "var(--c-text-primary)"; }}
                     onMouseLeave={e => { e.currentTarget.style.background = "none"; e.currentTarget.style.color = "var(--c-text-secondary)"; }}
                   >
-                    <User size={14} /> Profile Settings
-                  </button>
-                  <button 
-                    onClick={() => router.push("/calendar")}
-                    style={{ display: "flex", alignItems: "center", gap: "8px", background: "none", border: "none", color: "var(--c-text-secondary)", fontSize: "12.5px", padding: "6px 8px", cursor: "pointer", borderRadius: "6px", width: "100%", textAlign: "left", transition: "all var(--t-fast)" }}
-                    onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.03)"; e.currentTarget.style.color = "var(--c-text-primary)"; }}
-                    onMouseLeave={e => { e.currentTarget.style.background = "none"; e.currentTarget.style.color = "var(--c-text-secondary)"; }}
-                  >
-                    <Calendar size={14} /> View Calendar
+                    <User size={12} /> Profile Settings
                   </button>
                   <button 
                     onClick={async () => {
                       await supabase.auth.signOut();
                       router.push("/login");
                     }}
-                    style={{ display: "flex", alignItems: "center", gap: "8px", background: "none", border: "none", color: "var(--c-orange)", fontSize: "12.5px", padding: "6px 8px", cursor: "pointer", borderRadius: "6px", width: "100%", textAlign: "left", transition: "all var(--t-fast)" }}
-                    onMouseEnter={e => { e.currentTarget.style.background = "rgba(244,63,94,0.08)"; }}
+                    style={{ display: "flex", alignItems: "center", gap: "6px", background: "none", border: "none", color: "var(--c-orange)", fontSize: "12px", padding: "4px 6px", cursor: "pointer", borderRadius: "var(--r-sm)", width: "100%", textAlign: "left", transition: "all var(--t-fast)" }}
+                    onMouseEnter={e => { e.currentTarget.style.background = "rgba(244,63,94,0.04)"; }}
                     onMouseLeave={e => { e.currentTarget.style.background = "none"; }}
                   >
-                    <LogOut size={14} /> Sign Out
+                    <LogOut size={12} /> Sign Out
                   </button>
                 </div>
               </div>
@@ -397,13 +466,13 @@ export default function Navbar() {
         </div>
       </header>
 
-      {/* Global Command Palette / Search Modal */}
+      {/* Global Command Search Palette */}
       {showSearch && (
         <div 
           onClick={() => setShowSearch(false)}
           style={{
-            position: "fixed", inset: 0, background: "rgba(3, 3, 7, 0.75)",
-            backdropFilter: "blur(8px)", zIndex: 1000, display: "flex", justifyContent: "center",
+            position: "fixed", inset: 0, background: "rgba(15, 17, 23, 0.75)",
+            backdropFilter: "blur(4px)", zIndex: 1000, display: "flex", justifyContent: "center",
             paddingTop: "12vh"
           }}
           className="animate-fade"
@@ -411,99 +480,192 @@ export default function Navbar() {
           <div 
             onClick={e => e.stopPropagation()}
             style={{
-              width: "600px", maxWidth: "90%", background: "rgba(15, 17, 26, 0.95)",
-              border: "1px solid var(--c-border-2)", borderRadius: "16px",
+              width: "540px", maxWidth: "90%", background: "var(--c-surface-1)",
+              border: "1px solid var(--c-border-1)", borderRadius: "var(--r-xl)",
               boxShadow: "var(--sh-lg)", overflow: "hidden", display: "flex", flexDirection: "column",
-              height: "fit-content", maxHeight: "60vh"
+              height: "fit-content", maxHeight: "65vh"
             }}
             className="animate-up"
           >
             {/* Search Input Box */}
-            <div style={{ display: "flex", alignItems: "center", padding: "14px 18px", borderBottom: "1px solid var(--c-border-1)" }}>
-              <Search size={18} color="var(--c-text-tertiary)" style={{ marginRight: "12px", flexShrink: 0 }} />
+            <div style={{ display: "flex", alignItems: "center", padding: "10px 14px", borderBottom: "1px solid var(--c-border-1)" }}>
+              <Search size={16} color="var(--c-text-tertiary)" style={{ marginRight: "10px", flexShrink: 0 }} />
               <input 
                 ref={searchInputRef}
                 type="text" 
-                placeholder="Search navigation pages or study events..."
+                placeholder="Search subjects, sessions, notes, exams, chats, or calendar..."
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
                 style={{
                   flex: 1, background: "transparent", border: "none", outline: "none",
-                  fontSize: "14.5px", color: "var(--c-text-primary)", fontFamily: "var(--font-sans)"
+                  fontSize: "13.5px", color: "var(--c-text-primary)", fontFamily: "var(--font-sans)"
                 }}
               />
               <button 
                 onClick={() => setShowSearch(false)}
-                style={{ background: "none", border: "none", color: "var(--c-text-tertiary)", cursor: "pointer", display: "flex", marginLeft: "12px" }}
+                style={{ background: "none", border: "none", color: "var(--c-text-tertiary)", cursor: "pointer", display: "flex", marginLeft: "10px" }}
               >
-                <X size={18} />
+                <X size={16} />
               </button>
             </div>
 
             {/* Results Listings */}
-            <div style={{ overflowY: "auto", padding: "8px", display: "flex", flexDirection: "column", gap: "8px" }}>
+            <div style={{ overflowY: "auto", padding: "8px", display: "flex", flexDirection: "column", gap: "10px" }}>
               
-              {/* Quick Links section */}
-              {filteredLinks.length > 0 && (
+              {/* Local sessions matching search */}
+              {filteredEvents.length > 0 && (
                 <div>
-                  <p style={{ fontSize: "11px", fontWeight: 700, textTransform: "uppercase", color: "var(--c-text-tertiary)", letterSpacing: "0.06em", padding: "8px 10px 4px 10px" }}>
-                    Navigation
+                  <p style={{ fontSize: "9px", fontWeight: 600, textTransform: "uppercase", color: "var(--c-accent-light)", letterSpacing: "0.05em", padding: "0 6px 2px 6px" }}>
+                    Calendar Sessions
                   </p>
-                  <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-                    {filteredLinks.map(link => {
-                      const Icon = link.icon;
-                      return (
-                        <div 
-                          key={link.path}
-                          onClick={() => handleNavigate(link.path)}
-                          style={{
-                            display: "flex", alignItems: "center", gap: "12px", padding: "8px 12px",
-                            borderRadius: "8px", cursor: "pointer", transition: "all var(--t-fast)"
-                          }}
-                          onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.03)"}
-                          onMouseLeave={e => e.currentTarget.style.background = "transparent"}
-                        >
-                          <div style={{ width: "30px", height: "30px", borderRadius: "6px", background: "var(--c-surface-3)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                            <Icon size={14} color="var(--c-accent-light)" />
-                          </div>
-                          <div>
-                            <p style={{ fontSize: "13px", fontWeight: 600, color: "var(--c-text-primary)" }}>{link.title}</p>
-                            <p style={{ fontSize: "11.5px", color: "var(--c-text-tertiary)", marginTop: "1px" }}>{link.desc}</p>
-                          </div>
-                        </div>
-                      );
-                    })}
+                  <div style={{ display: "flex", flexDirection: "column", gap: "1px" }}>
+                    {filteredEvents.map(ev => (
+                      <div 
+                        key={ev.id}
+                        onClick={() => handleNavigate("/calendar")}
+                        style={{ display: "flex", alignItems: "center", gap: "8px", padding: "5px 6px", borderRadius: "var(--r-md)", cursor: "pointer" }}
+                        onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.02)"}
+                        onMouseLeave={e => e.currentTarget.style.background = "transparent"}
+                      >
+                        <Calendar size={13} color="var(--c-accent-light)" />
+                        <span style={{ fontSize: "12.5px", color: "var(--c-text-primary)" }}>{ev.title}</span>
+                        <span style={{ fontSize: "10.5px", color: "var(--c-text-tertiary)", marginLeft: "auto" }}>Day {ev.day + 1} ({ev.start}:00)</span>
+                      </div>
+                    ))}
                   </div>
                 </div>
               )}
 
-              {/* Study events section */}
-              {filteredEvents.length > 0 && (
-                <div style={{ borderTop: "1px solid var(--c-border-0)", paddingTop: "8px", marginTop: "4px" }}>
-                  <p style={{ fontSize: "11px", fontWeight: 700, textTransform: "uppercase", color: "var(--c-text-tertiary)", letterSpacing: "0.06em", padding: "4px 10px" }}>
-                    Timetable Sessions
+              {/* Exams matching search */}
+              {filteredExams.length > 0 && (
+                <div>
+                  <p style={{ fontSize: "9px", fontWeight: 600, textTransform: "uppercase", color: "var(--c-orange)", letterSpacing: "0.05em", padding: "0 6px 2px 6px" }}>
+                    Exams Milestones
                   </p>
-                  <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-                    {filteredEvents.map(ev => (
+                  <div style={{ display: "flex", flexDirection: "column", gap: "1px" }}>
+                    {filteredExams.map(ex => (
                       <div 
-                        key={ev.id}
-                        onClick={() => handleNavigateEvent(ev.id)}
-                        style={{
-                          display: "flex", alignItems: "center", gap: "12px", padding: "8px 12px",
-                          borderRadius: "8px", cursor: "pointer", transition: "all var(--t-fast)"
-                        }}
-                        onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.03)"}
+                        key={ex.id}
+                        onClick={() => handleNavigate("/exams")}
+                        style={{ display: "flex", alignItems: "center", gap: "8px", padding: "5px 6px", borderRadius: "var(--r-md)", cursor: "pointer" }}
+                        onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.02)"}
                         onMouseLeave={e => e.currentTarget.style.background = "transparent"}
                       >
-                        <div style={{ width: "30px", height: "30px", borderRadius: "6px", background: "rgba(139,92,246,0.06)", border: "1px solid rgba(139,92,246,0.15)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                          <Calendar size={14} color="var(--c-accent-light)" />
+                        <Award size={13} color="var(--c-orange)" />
+                        <span style={{ fontSize: "12.5px", color: "var(--c-text-primary)" }}>{ex.name} ({ex.subject})</span>
+                        <span style={{ fontSize: "10.5px", color: "var(--c-text-tertiary)", marginLeft: "auto" }}>Readiness: {Math.round((ex.completedChapters / ex.chapters) * 100)}%</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Database search matching subjects */}
+              {dbResults.subjects.length > 0 && (
+                <div>
+                  <p style={{ fontSize: "9px", fontWeight: 600, textTransform: "uppercase", color: "var(--c-secondary-light)", letterSpacing: "0.05em", padding: "0 6px 2px 6px" }}>
+                    Subjects
+                  </p>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "1px" }}>
+                    {dbResults.subjects.map(s => (
+                      <div 
+                        key={s.id}
+                        onClick={() => handleNavigate("/dashboard")}
+                        style={{ display: "flex", alignItems: "center", gap: "8px", padding: "5px 6px", borderRadius: "var(--r-md)", cursor: "pointer" }}
+                        onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.02)"}
+                        onMouseLeave={e => e.currentTarget.style.background = "transparent"}
+                      >
+                        <BookOpen size={13} color="var(--c-secondary-light)" />
+                        <span style={{ fontSize: "12.5px", color: "var(--c-text-primary)" }}>{s.subject_name}</span>
+                        <span style={{ fontSize: "10.5px", color: "var(--c-text-tertiary)", marginLeft: "auto" }}>Difficulty: {s.difficulty_level}/5</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Spaced Revisions matching search */}
+              {filteredRevisions.length > 0 && (
+                <div>
+                  <p style={{ fontSize: "9px", fontWeight: 600, textTransform: "uppercase", color: "var(--c-success)", letterSpacing: "0.05em", padding: "0 6px 2px 6px" }}>
+                    Spaced Repetition
+                  </p>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "1px" }}>
+                    {filteredRevisions.map(rev => (
+                      <div 
+                        key={rev.id}
+                        onClick={() => handleNavigate("/dashboard")}
+                        style={{ display: "flex", alignItems: "center", gap: "8px", padding: "5px 6px", borderRadius: "var(--r-md)", cursor: "pointer" }}
+                        onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.02)"}
+                        onMouseLeave={e => e.currentTarget.style.background = "transparent"}
+                      >
+                        <Clock size={13} color="var(--c-success)" />
+                        <span style={{ fontSize: "12.5px", color: "var(--c-text-primary)" }}>{rev.title}</span>
+                        <span style={{ fontSize: "10.5px", color: "var(--c-text-tertiary)", marginLeft: "auto" }}>Retention: {rev.retentionScore}%</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Chat Message History matching search */}
+              {dbResults.chatMessages.length > 0 && (
+                <div>
+                  <p style={{ fontSize: "9px", fontWeight: 600, textTransform: "uppercase", color: "var(--c-accent-light)", letterSpacing: "0.05em", padding: "0 6px 2px 6px" }}>
+                    AI Conversations
+                  </p>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "1px" }}>
+                    {dbResults.chatMessages.map(msg => (
+                      <div 
+                        key={msg.id}
+                        onClick={() => handleNavigate("/chat")}
+                        style={{ display: "flex", flexDirection: "column", gap: "3px", padding: "6px", borderRadius: "var(--r-md)", cursor: "pointer" }}
+                        onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.02)"}
+                        onMouseLeave={e => e.currentTarget.style.background = "transparent"}
+                      >
+                        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                          <MessageSquare size={12} color="var(--c-accent-light)" style={{ flexShrink: 0 }} />
+                          <span style={{ fontSize: "11.5px", fontWeight: 600, color: "var(--c-text-secondary)" }}>
+                            {msg.role === "user" ? "You" : "Chronova AI"}
+                          </span>
+                          <span style={{ fontSize: "9.5px", color: "var(--c-text-tertiary)", marginLeft: "auto" }}>
+                            {new Date(msg.created_at).toLocaleDateString()}
+                          </span>
                         </div>
-                        <div>
-                          <p style={{ fontSize: "13px", fontWeight: 600, color: "var(--c-text-primary)" }}>{ev.title}</p>
-                          <p style={{ fontSize: "11.5px", color: "var(--c-text-tertiary)", marginTop: "1px" }}>
-                            Scheduled on {DAYS[ev.day]} at {Math.floor(ev.start)}:{String(Math.round((ev.start % 1) * 60)).padStart(2, "0")}
-                          </p>
+                        <p style={{ fontSize: "11.5px", color: "var(--c-text-tertiary)", paddingLeft: "20px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                           {msg.content}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Session notes matching search */}
+              {dbResults.notes.length > 0 && (
+                <div>
+                  <p style={{ fontSize: "9px", fontWeight: 600, textTransform: "uppercase", color: "var(--c-text-secondary)", letterSpacing: "0.05em", padding: "0 6px 2px 6px" }}>
+                    Study Notes
+                  </p>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "1px" }}>
+                    {dbResults.notes.map(n => (
+                      <div 
+                        key={n.id}
+                        onClick={() => handleNavigate("/calendar")}
+                        style={{ display: "flex", flexDirection: "column", gap: "3px", padding: "6px", borderRadius: "var(--r-md)", cursor: "pointer" }}
+                        onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.02)"}
+                        onMouseLeave={e => e.currentTarget.style.background = "transparent"}
+                      >
+                        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                          <FileText size={12} color="var(--c-text-secondary)" style={{ flexShrink: 0 }} />
+                          <span style={{ fontSize: "12px", fontWeight: 600, color: "var(--c-text-primary)" }}>Study Session Notes</span>
+                          <span style={{ fontSize: "10.5px", color: "var(--c-text-tertiary)", marginLeft: "auto" }}>
+                            {n.duration_minutes} min (Focus: {n.focus_score}%)
+                          </span>
                         </div>
+                        <p style={{ fontSize: "11.5px", color: "var(--c-text-tertiary)", paddingLeft: "20px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                          {n.notes}
+                        </p>
                       </div>
                     ))}
                   </div>
@@ -511,10 +673,11 @@ export default function Navbar() {
               )}
 
               {/* Empty state */}
-              {filteredLinks.length === 0 && filteredEvents.length === 0 && (
-                <div style={{ textAlign: "center", padding: "32px 0", color: "var(--c-text-tertiary)" }}>
-                  <p style={{ fontSize: "13.5px", fontWeight: 500 }}>No results matching "{searchQuery}"</p>
-                  <p style={{ fontSize: "11.5px", marginTop: "2px" }}>Try searching for "math", "analytics", or "calendar".</p>
+              {filteredEvents.length === 0 && filteredExams.length === 0 && filteredRevisions.length === 0 &&
+               dbResults.subjects.length === 0 && dbResults.chatMessages.length === 0 && dbResults.notes.length === 0 && (
+                <div style={{ textAlign: "center", padding: "24px 0", color: "var(--c-text-tertiary)" }}>
+                  <p style={{ fontSize: "12.5px", fontWeight: 500 }}>No results found</p>
+                  <p style={{ fontSize: "10.5px", marginTop: "2px" }}>Search across subjects, notes, exams, AI chats, and schedules.</p>
                 </div>
               )}
 
@@ -524,18 +687,94 @@ export default function Navbar() {
       )}
 
       <style jsx global>{`
-        .mobile-menu-btn {
-          display: none !important;
-        }
+        .mobile-menu-btn { display: none !important; }
         @media (max-width: 768px) {
-          .mobile-menu-btn {
-            display: flex !important;
-          }
-          .desktop-only-sub {
-            display: none !important;
-          }
+          .mobile-menu-btn { display: flex !important; }
+          .desktop-only-sub { display: none !important; }
         }
       `}</style>
     </>
+  );
+}
+
+interface NotificationItemProps {
+  n: OSNotification;
+  onRead: () => void;
+  onDelete: () => void;
+  onAction: () => void;
+}
+
+function NotificationItem({ n, onRead, onDelete, onAction }: NotificationItemProps) {
+  const [hovered, setHovered] = useState(false);
+
+  return (
+    <div 
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        padding: "10px 12px", 
+        background: "rgba(255,255,255,0.012)",
+        border: "1px solid var(--c-border-1)", 
+        borderRadius: "8px", 
+        position: "relative",
+        display: "flex",
+        flexDirection: "column",
+        gap: "4px"
+      }}
+    >
+      {/* Read/Delete Controls */}
+      <div style={{ display: "flex", gap: "6px", position: "absolute", top: "10px", right: "10px", opacity: hovered ? 1 : 0, transition: "opacity var(--t-fast)" }}>
+        {!n.read && (
+          <button 
+            onClick={onRead} 
+            title="Mark Read"
+            style={{ background: "none", border: "none", color: "var(--c-success)", cursor: "pointer", fontSize: "10px", fontWeight: 700 }}
+          >
+            Read
+          </button>
+        )}
+        <button 
+          onClick={onDelete} 
+          title="Delete"
+          style={{ background: "none", border: "none", color: "var(--c-danger)", cursor: "pointer", fontSize: "10px", fontWeight: 700 }}
+        >
+          Delete
+        </button>
+      </div>
+
+      <div style={{ display: "flex", gap: "8px", alignItems: "flex-start", paddingRight: "50px" }}>
+        <div style={{ flex: 1 }}>
+          <p style={{ fontSize: "12.5px", color: "var(--c-text-primary)", fontWeight: 650, lineHeight: 1.35 }}>
+            {n.text}
+          </p>
+          <span style={{ fontSize: "9px", color: "var(--c-text-tertiary)", marginTop: "4px", display: "inline-block" }}>
+            {n.time}
+          </span>
+        </div>
+      </div>
+
+      {n.actionText && (
+        <button 
+          onClick={onAction}
+          style={{
+            alignSelf: "flex-start",
+            background: "var(--c-accent-dim)",
+            border: "1px solid var(--c-accent-border)",
+            borderRadius: "6px",
+            color: "var(--c-accent-light)",
+            fontSize: "11px",
+            fontWeight: 650,
+            padding: "4px 10px",
+            cursor: "pointer",
+            marginTop: "6px",
+            transition: "all var(--t-fast)"
+          }}
+          onMouseEnter={e => e.currentTarget.style.background = "rgba(139, 92, 246, 0.1)"}
+          onMouseLeave={e => e.currentTarget.style.background = "var(--c-accent-dim)"}
+        >
+          {n.actionText}
+        </button>
+      )}
+    </div>
   );
 }

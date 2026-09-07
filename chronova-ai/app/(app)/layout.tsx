@@ -64,7 +64,13 @@ export default function AppLayout({ children }: { children: ReactNode }) {
   }
 
   return (
-    <div style={{ display: "flex", minHeight: "100vh" }}>
+    // height (not minHeight) caps the whole shell to the viewport, so the
+    // right-hand column below is height-constrained too and <main> becomes
+    // the one real internal scroll container. Without this cap, the column
+    // just grows to fit its content and the page/body scrolls instead — which
+    // breaks Navbar's `position: sticky` (it has nothing to stick against)
+    // and made the previously-plain header scroll out of view entirely.
+    <div style={{ display: "flex", height: "100vh" }}>
       <Sidebar />
       <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0, overflow: "hidden" }}>
         <Navbar />

@@ -8,7 +8,7 @@ export async function POST(req: NextRequest) {
     const { messages, userContext } = await req.json();
 
     const apiKey = process.env.OPENROUTER_API_KEY;
-    const model = process.env.OPENROUTER_MODEL || "openai/gpt-oss-120b:free";
+    const model = process.env.OPENROUTER_MODEL || "openrouter/free";
 
     if (!apiKey) {
       // Fallback response if OPENROUTER_API_KEY is not configured
@@ -59,26 +59,56 @@ CHATBOT PERSONALITY INSTRUCTIONS:
       }))
     ];
 
-    const openRouterResponse = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-        "HTTP-Referer": "http://localhost:3000",
-        "X-Title": "Chronova AI",
-      },
-      body: JSON.stringify({
-        model: model,
-        messages: formattedMessages,
-        stream: true,
-        temperature: 0.7,
-        max_tokens: 1000,
-      }),
-    });
+    let openRouterResponse: Response | null = null;
+    let selectedModel = model;
+    let lastErrorText = "";
 
-    if (!openRouterResponse.ok) {
-      const errText = await openRouterResponse.text();
-      throw new Error(`OpenRouter API error: ${openRouterResponse.status} - ${errText}`);
+    const modelsToTry = [
+      model,
+      "openrouter/free",
+      "openai/gpt-oss-120b:free",
+      "meta-llama/llama-3.3-70b-instruct:free",
+      "meta-llama/llama-3.2-3b-instruct:free",
+      "nousresearch/hermes-3-llama-3.1-405b:free",
+    ].filter((m, i, arr) => m && arr.indexOf(m) === i);
+
+    for (const attemptModel of modelsToTry) {
+      try {
+        console.log(`[Chat API] Attempting completion using model: ${attemptModel}`);
+        const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${apiKey}`,
+            "Content-Type": "application/json",
+            "HTTP-Referer": "http://localhost:3000",
+            "X-Title": "Chronova AI",
+          },
+          body: JSON.stringify({
+            model: attemptModel,
+            messages: formattedMessages,
+            stream: true,
+            temperature: 0.7,
+            max_tokens: 1000,
+          }),
+        });
+
+        if (response.ok) {
+          openRouterResponse = response;
+          selectedModel = attemptModel;
+          console.log(`[Chat API] Successfully selected model: ${selectedModel}`);
+          break;
+        } else {
+          lastErrorText = await response.text();
+          console.warn(`[Chat API] Failed with model ${attemptModel}: ${response.status} - ${lastErrorText}`);
+        }
+      } catch (err: any) {
+        lastErrorText = err?.message || String(err);
+        console.warn(`[Chat API] Exception trying model ${attemptModel}:`, err);
+      }
+    }
+
+    if (!openRouterResponse) {
+      throw new Error(`OpenRouter API error: All fallback attempts failed. Last error: ${lastErrorText}`);
     }
 
     const encoder = new TextEncoder();

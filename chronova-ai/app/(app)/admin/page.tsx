@@ -38,11 +38,11 @@ export default function AdminPage() {
   return (
     <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
       <div style={{ marginBottom: "28px" }}>
-        <p className="section-label">Administration</p>
-        <h1 style={{ fontFamily: "var(--font-outfit)", fontSize: "28px", fontWeight: 700, marginTop: "4px" }}>
+        <p className="eyebrow">Administration</p>
+        <h1 style={{ fontFamily: "var(--font-display)", fontSize: "28px", fontWeight: 700, marginTop: "4px", color: "var(--c-text-primary)" }}>
           Institution Panel
         </h1>
-        <p style={{ color: "var(--text-secondary)", marginTop: "4px" }}>
+        <p style={{ color: "var(--c-text-secondary)", marginTop: "4px" }}>
           Manage your school or college timetables, teachers, and classrooms
         </p>
       </div>
@@ -51,17 +51,17 @@ export default function AdminPage() {
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "16px", marginBottom: "28px" }}>
         {DEMO_STATS.map(({ label, value, icon: Icon, color, href }) => (
           <Link key={label} href={href} style={{ textDecoration: "none" }}>
-            <div className="glass-card" style={{ padding: "20px" }}>
+            <div className="card card-hover" style={{ padding: "20px" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
                 <div>
-                  <p style={{ fontSize: "12px", color: "var(--text-muted)", marginBottom: "8px" }}>{label}</p>
-                  <p style={{ fontSize: "32px", fontWeight: 800, color, fontFamily: "var(--font-outfit)" }}>{value}</p>
+                  <p style={{ fontSize: "12px", color: "var(--c-text-tertiary)", marginBottom: "8px" }}>{label}</p>
+                  <p style={{ fontSize: "32px", fontWeight: 800, color, fontFamily: "var(--font-display)" }}>{value}</p>
                 </div>
                 <div style={{ width: "40px", height: "40px", borderRadius: "10px", background: `${color}22`, display: "flex", alignItems: "center", justifyContent: "center" }}>
                   <Icon size={20} color={color} />
                 </div>
               </div>
-              <p style={{ fontSize: "12px", color: `${color}99`, marginTop: "8px", display: "flex", alignItems: "center", gap: "4px" }}>
+              <p style={{ fontSize: "12px", color, marginTop: "8px", display: "flex", alignItems: "center", gap: "4px" }}>
                 Manage <ChevronRight size={12} />
               </p>
             </div>
@@ -70,7 +70,7 @@ export default function AdminPage() {
       </div>
 
       {/* AI Generate section */}
-      <div className="glass-strong" style={{ padding: "24px", marginBottom: "24px" }}>
+      <div className="card" style={{ padding: "24px", marginBottom: "24px" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: generated ? "20px" : "0" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
             <div style={{
@@ -81,20 +81,20 @@ export default function AdminPage() {
               <Sparkles size={22} color="white" />
             </div>
             <div>
-              <h2 style={{ fontSize: "16px", fontWeight: 700 }}>AI Timetable Generator</h2>
-              <p style={{ fontSize: "13px", color: "var(--text-secondary)", marginTop: "2px" }}>
+              <h2 style={{ fontSize: "16px", fontWeight: 700, color: "var(--c-text-primary)" }}>AI Timetable Generator</h2>
+              <p style={{ fontSize: "13px", color: "var(--c-text-secondary)", marginTop: "2px" }}>
                 Generate an optimized conflict-free timetable using AI
               </p>
             </div>
           </div>
           <div style={{ display: "flex", gap: "10px" }}>
             {generated && (
-              <span className="badge badge-success"><CheckCircle size={12} /> Generated</span>
+              <span className="badge badge-green"><CheckCircle size={12} /> Generated</span>
             )}
             <button
               id="generate-timetable-btn"
               onClick={() => setShowGenerateForm(!showGenerateForm)}
-              className="btn-primary"
+              className="btn btn-primary"
               style={{ padding: "10px 18px", fontSize: "14px" }}
             >
               <Plus size={16} /> Generate Timetable
@@ -104,7 +104,7 @@ export default function AdminPage() {
 
         {/* Generate form */}
         {showGenerateForm && (
-          <div style={{ marginTop: "20px", borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: "20px" }}>
+          <div style={{ marginTop: "20px", borderTop: "1px solid var(--c-border-1)", paddingTop: "20px" }}>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "16px", marginBottom: "16px" }}>
               {[
                 { label: "Institution Name", placeholder: "e.g. Delhi Public School" },
@@ -112,35 +112,35 @@ export default function AdminPage() {
                 { label: "Age Group", placeholder: "e.g. 16-17 years" },
               ].map(({ label, placeholder }) => (
                 <div key={label}>
-                  <label style={{ fontSize: "13px", color: "var(--text-secondary)", marginBottom: "6px", display: "block" }}>{label}</label>
-                  <input className="input-field" placeholder={placeholder} />
+                  <label className="form-label">{label}</label>
+                  <input className="input" placeholder={placeholder} />
                 </div>
               ))}
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", marginBottom: "20px" }}>
               <div>
-                <label style={{ fontSize: "13px", color: "var(--text-secondary)", marginBottom: "6px", display: "block" }}>School Hours</label>
-                <div style={{ display: "flex", gap: "8px" }}>
-                  <input type="time" className="input-field" defaultValue="08:00" />
-                  <span style={{ color: "var(--text-muted)", display: "flex", alignItems: "center" }}>to</span>
-                  <input type="time" className="input-field" defaultValue="15:00" />
+                <label className="form-label">School Hours</label>
+                <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                  <input type="time" className="input" defaultValue="08:00" />
+                  <span style={{ color: "var(--c-text-tertiary)", display: "flex", alignItems: "center" }}>to</span>
+                  <input type="time" className="input" defaultValue="15:00" />
                 </div>
               </div>
               <div>
-                <label style={{ fontSize: "13px", color: "var(--text-secondary)", marginBottom: "6px", display: "block" }}>Lunch Break</label>
-                <div style={{ display: "flex", gap: "8px" }}>
-                  <input type="time" className="input-field" defaultValue="12:00" />
-                  <span style={{ color: "var(--text-muted)", display: "flex", alignItems: "center" }}>to</span>
-                  <input type="time" className="input-field" defaultValue="13:00" />
+                <label className="form-label">Lunch Break</label>
+                <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                  <input type="time" className="input" defaultValue="12:00" />
+                  <span style={{ color: "var(--c-text-tertiary)", display: "flex", alignItems: "center" }}>to</span>
+                  <input type="time" className="input" defaultValue="13:00" />
                 </div>
               </div>
             </div>
             <div style={{ display: "flex", gap: "10px" }}>
-              <button onClick={() => setShowGenerateForm(false)} className="btn-secondary">Cancel</button>
-              <button onClick={handleGenerate} disabled={generating} className="btn-primary">
+              <button onClick={() => setShowGenerateForm(false)} className="btn btn-secondary">Cancel</button>
+              <button onClick={handleGenerate} disabled={generating} className="btn btn-primary">
                 {generating ? (
                   <>
-                    <span style={{ width: "16px", height: "16px", border: "2px solid rgba(255,255,255,0.3)", borderTopColor: "white", borderRadius: "50%", animation: "spin 0.6s linear infinite", display: "inline-block" }} />
+                    <span style={{ width: "16px", height: "16px", border: "2px solid var(--c-accent-border)", borderTopColor: "white", borderRadius: "50%", animation: "spin 0.6s linear infinite", display: "inline-block" }} />
                     Generating with AI...
                   </>
                 ) : (
@@ -153,14 +153,14 @@ export default function AdminPage() {
       </div>
 
       {/* Timetable Preview */}
-      <div className="glass-card" style={{ padding: "24px" }}>
+      <div className="card" style={{ padding: "24px" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
           <div>
-            <h2 style={{ fontSize: "16px", fontWeight: 700 }}>Monday Timetable Preview</h2>
-            <p style={{ fontSize: "13px", color: "var(--text-secondary)", marginTop: "2px" }}>Class 11 — Science</p>
+            <h2 style={{ fontSize: "16px", fontWeight: 700, color: "var(--c-text-primary)" }}>Monday Timetable Preview</h2>
+            <p style={{ fontSize: "13px", color: "var(--c-text-secondary)", marginTop: "2px" }}>Class 11 — Science</p>
           </div>
           <div style={{ display: "flex", gap: "8px" }}>
-            <span className="badge badge-success"><CheckCircle size={12} /> No Conflicts</span>
+            <span className="badge badge-green"><CheckCircle size={12} /> No Conflicts</span>
           </div>
         </div>
 
@@ -171,7 +171,7 @@ export default function AdminPage() {
                 {["Time Slot", "Subject", "Teacher", "Classroom"].map((h) => (
                   <th key={h} style={{
                     padding: "10px 16px", textAlign: "left",
-                    fontSize: "12px", color: "var(--text-muted)",
+                    fontSize: "12px", color: "var(--c-text-tertiary)",
                     fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase"
                   }}>{h}</th>
                 ))}
@@ -183,10 +183,10 @@ export default function AdminPage() {
                   {[row.time, row.subject, row.teacher, row.room].map((cell, j) => (
                     <td key={j} style={{
                       padding: "12px 16px",
-                      background: i % 2 === 0 ? "rgba(255,255,255,0.03)" : "transparent",
+                      background: i % 2 === 0 ? "var(--c-surface-0)" : "transparent",
                       borderRadius: j === 0 ? "10px 0 0 10px" : j === 3 ? "0 10px 10px 0" : "0",
                       fontSize: "14px",
-                      color: j === 1 ? "var(--text-primary)" : "var(--text-secondary)",
+                      color: j === 1 ? "var(--c-text-primary)" : "var(--c-text-secondary)",
                       fontWeight: j === 1 ? 600 : 400,
                     }}>
                       {j === 1 && (
@@ -209,17 +209,17 @@ export default function AdminPage() {
 
         <div style={{ marginTop: "20px", display: "flex", gap: "10px" }}>
           <Link href="/admin/teachers">
-            <button className="btn-secondary" style={{ fontSize: "13px" }}>
+            <button className="btn btn-secondary" style={{ fontSize: "13px" }}>
               <Users size={14} /> Manage Teachers
             </button>
           </Link>
           <Link href="/admin/classes">
-            <button className="btn-secondary" style={{ fontSize: "13px" }}>
+            <button className="btn btn-secondary" style={{ fontSize: "13px" }}>
               <Building2 size={14} /> Manage Classes
             </button>
           </Link>
           <Link href="/admin/timetable">
-            <button className="btn-primary" style={{ fontSize: "13px" }}>
+            <button className="btn btn-primary" style={{ fontSize: "13px" }}>
               View Full Timetable <ChevronRight size={14} />
             </button>
           </Link>
