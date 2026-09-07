@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import Sidebar from "@/components/layout/Sidebar";
 import Navbar from "@/components/layout/Navbar";
 import { createClient } from "@/lib/supabase/client";
+import { resolveUserRole, roleHomePath } from "@/lib/auth/resolveRole";
 import FloatingAssistant from "@/components/chat/FloatingAssistant";
 
 export default function AppLayout({ children }: { children: ReactNode }) {
@@ -14,44 +15,33 @@ export default function AppLayout({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const supabase = createClient();
-    supabase.auth.getUser().then(({ data: { user } }) => {
+    supabase.auth.getUser().then(async ({ data: { user } }) => {
       if (!user) {
         router.push("/login");
         return;
       }
 
-      const searchParams = new URLSearchParams(window.location.search);
-      const urlRole = searchParams.get("role");
+      const role = await resolveUserRole(supabase, user);
+      const isAdminArea = pathname.startsWith("/admin");
+      const isTeacherArea = pathname.startsWith("/teacher");
+      const isSettings = pathname === "/settings";
+      const home = roleHomePath(role);
 
-      let role = user.user_metadata?.role;
+      // Every role gets its own home area, and /settings stays reachable
+      // by everyone. Anything outside that gets bounced to the role's own
+      // home page — this is what makes /admin, /teacher, and every student
+      // page mutually exclusive per role, with no ?role= override needed.
+      const outOfBounds =
+        (role === "student" && (isAdminArea || isTeacherArea)) ||
+        (role === "admin" && (isTeacherArea || (!isAdminArea && !isSettings))) ||
+        (role === "teacher" && (isAdminArea || (!isTeacherArea && !isSettings)));
 
-      // If a role param is provided in the URL and differs from the current metadata role, update it
-      if (urlRole && (urlRole === "student" || urlRole === "institution") && role !== urlRole) {
-        role = urlRole;
-        supabase.auth.updateUser({
-          data: { role: urlRole }
-        });
+      if (outOfBounds) {
+        router.push(home);
+        return;
       }
 
-      const guessedRole = pathname.startsWith("/admin") ? "institution" : "student";
-
-      // If user has no metadata role (e.g. initial Google login), auto-update user metadata
-      if (!role) {
-        role = guessedRole;
-        supabase.auth.updateUser({
-          data: { role: guessedRole }
-        });
-      }
-
-      const activeRole = role || guessedRole;
-
-      if (activeRole === "student" && pathname.startsWith("/admin")) {
-        router.push("/dashboard");
-      } else if (activeRole === "institution" && !pathname.startsWith("/admin") && pathname !== "/settings") {
-        router.push("/admin");
-      } else {
-        setLoading(false);
-      }
+      setLoading(false);
     });
   }, [pathname, router]);
 

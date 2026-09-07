@@ -18,11 +18,17 @@ const PAGE_TITLES: Record<string, { title: string; sub: string }> = {
   "/chat":            { title: "AI Assistant",   sub: "Chronova Academic Brain" },
   "/exams":           { title: "Exams",          sub: "Test milestones and readiness" },
   "/progress":        { title: "Progress",       sub: "Consistency & study analytics" },
-  "/admin":           { title: "Admin Panel",     sub: "Institution management" },
-  "/admin/timetable": { title: "Timetable",       sub: "Full institution timetable" },
-  "/admin/teachers":  { title: "Teachers",        sub: "Manage teaching staff" },
-  "/admin/classes":   { title: "Classes",         sub: "Batches & classrooms" },
-  "/settings":        { title: "Settings",        sub: "Preferences & schedule tuning" },
+  "/admin":              { title: "Admin Panel",  sub: "Institution management" },
+  "/admin/timetable":    { title: "Timetable",    sub: "Full institution timetable" },
+  "/admin/teachers":     { title: "Teachers",     sub: "Manage teaching staff" },
+  "/admin/classes":      { title: "Classes",      sub: "Batches & classrooms" },
+  "/admin/requests":     { title: "Requests",     sub: "Teacher reschedule & leave requests" },
+  "/admin/notifications": { title: "Notifications", sub: "Compose and inbox" },
+  "/teacher":            { title: "Dashboard",    sub: "Your teaching day at a glance" },
+  "/teacher/schedule":   { title: "My Schedule",  sub: "Your weekly timetable" },
+  "/teacher/requests":   { title: "My Requests",  sub: "Reschedule, swap, leave, substitution" },
+  "/teacher/notifications": { title: "Notifications", sub: "Updates from your admin" },
+  "/settings":           { title: "Settings",     sub: "Preferences & schedule tuning" },
 };
 
 function getPageMeta(pathname: string) {

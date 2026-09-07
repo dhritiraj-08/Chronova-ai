@@ -4,13 +4,15 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   Home, Calendar, Sparkles, GraduationCap, BarChart2,
-  Building2, Settings, ChevronLeft, ChevronRight, Flame
+  Building2, Settings, ChevronLeft, ChevronRight, Flame,
+  ClipboardList, Bell, Users, LayoutGrid
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { LogoMark } from "@/components/Logo";
 import { useUIStore } from "@/lib/store/uiStore";
 import { useScheduleStore } from "@/lib/store/scheduleStore";
 import { createClient } from "@/lib/supabase/client";
+import { resolveUserRole } from "@/lib/auth/resolveRole";
 
 const NAV_SECTIONS = [
   {
@@ -26,8 +28,21 @@ const NAV_SECTIONS = [
   {
     label: "Institution",
     items: [
-      { href: "/admin",             icon: Building2,      label: "Admin Panel" },
-      { href: "/admin/timetable",   icon: GraduationCap,  label: "Timetable" },
+      { href: "/admin",              icon: Building2,      label: "Admin Panel" },
+      { href: "/admin/timetable",    icon: GraduationCap,  label: "Timetable" },
+      { href: "/admin/teachers",     icon: Users,          label: "Teachers" },
+      { href: "/admin/classes",      icon: LayoutGrid,     label: "Classes" },
+      { href: "/admin/requests",     icon: ClipboardList,  label: "Requests" },
+      { href: "/admin/notifications", icon: Bell,          label: "Notifications" },
+    ],
+  },
+  {
+    label: "Teacher",
+    items: [
+      { href: "/teacher",              icon: Home,          label: "Dashboard" },
+      { href: "/teacher/schedule",     icon: Calendar,      label: "My Schedule" },
+      { href: "/teacher/requests",     icon: ClipboardList, label: "My Requests" },
+      { href: "/teacher/notifications", icon: Bell,         label: "Notifications" },
     ],
   },
 ];
@@ -47,7 +62,7 @@ export default function Sidebar() {
   } = useUIStore();
   
   const { userName, level, streak, loadFromDatabase } = useScheduleStore();
-  const [role, setRole] = useState<"student" | "institution">("student");
+  const [role, setRole] = useState<"student" | "admin" | "teacher">("student");
 
   const collapsed = sidebarCollapsed;
 
@@ -61,18 +76,18 @@ export default function Sidebar() {
 
   useEffect(() => {
     const supabase = createClient();
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (user) {
-        const metadataRole = user.user_metadata?.role;
-        if (metadataRole === "student" || metadataRole === "institution") {
-          setRole(metadataRole);
-        }
-      }
+    supabase.auth.getUser().then(async ({ data: { user } }) => {
+      if (!user) return;
+      // Shared with /login and the (app) layout's route guard — all three
+      // must agree on a user's role, or the sidebar could show one role's
+      // nav while the layout enforces a different one.
+      setRole(await resolveUserRole(supabase, user));
     });
   }, [pathname]);
 
   const visibleSections = NAV_SECTIONS.filter(({ label }) => {
-    if (role === "institution") return label === "Institution";
+    if (role === "admin") return label === "Institution";
+    if (role === "teacher") return label === "Teacher";
     return label === "Workspace";
   });
 

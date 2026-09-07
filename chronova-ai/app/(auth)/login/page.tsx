@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { resolveUserRole, roleHomePath } from "@/lib/auth/resolveRole";
 import { Mail, Lock, Eye, EyeOff, ArrowRight } from "lucide-react";
 import { Logo } from "@/components/Logo";
 
@@ -16,23 +17,30 @@ export default function LoginPage() {
   const [showPw, setShowPw] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [role, setRole] = useState<"student" | "institution">("student");
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        router.push("/dashboard");
-      }
+    supabase.auth.getUser().then(async ({ data: { user } }) => {
+      if (user) await redirectToRoleHome(user);
     });
   }, [router, supabase]);
+
+  // Detects the account's real role (from institution_members, falling
+  // back to the signup-time metadata flag) and sends them to the right
+  // home page. Never writes a role here — that was the bug where picking
+  // the wrong tab on this page silently reassigned an existing account's
+  // role. The account's role is decided at signup/invite time, not login.
+  async function redirectToRoleHome(user: NonNullable<Awaited<ReturnType<typeof supabase.auth.getUser>>["data"]["user"]>) {
+    const role = await resolveUserRole(supabase, user);
+    router.push(roleHomePath(role));
+  }
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     setError("");
-    
+
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-    
+
     if (error) {
       const errMsg = error.message.toLowerCase();
       if (errMsg.includes("email not confirmed") || errMsg.includes("email not verified")) {
@@ -46,14 +54,11 @@ export default function LoginPage() {
 
           if (confirmRes.ok && confirmData.success) {
             const retry = await supabase.auth.signInWithPassword({ email, password });
-            if (retry.error) {
-              setError(retry.error.message);
+            if (retry.error || !retry.data.user) {
+              setError(retry.error?.message || "Sign in failed.");
               setLoading(false);
             } else {
-              await supabase.auth.updateUser({
-                data: { role }
-              });
-              router.push(role === "institution" ? "/admin?role=institution" : "/dashboard?role=student");
+              await redirectToRoleHome(retry.data.user);
             }
           } else {
             setError(confirmData.error || error.message);
@@ -67,11 +72,8 @@ export default function LoginPage() {
         setError(error.message);
         setLoading(false);
       }
-    } else {
-      await supabase.auth.updateUser({
-        data: { role }
-      });
-      router.push(role === "institution" ? "/admin?role=institution" : "/dashboard?role=student");
+    } else if (data.user) {
+      await redirectToRoleHome(data.user);
     }
   }
 
@@ -102,25 +104,6 @@ export default function LoginPage() {
             <p style={{ fontSize: "12.5px", color: "var(--c-text-secondary)", marginTop: "2px" }}>
               Sign in to your account to continue
             </p>
-          </div>
-
-          {/* Role selector tabs */}
-          <div style={{ display: "flex", gap: "4px", background: "var(--c-surface-2)", borderRadius: "var(--r-md)", padding: "3px", border: "1px solid var(--c-border-1)", marginBottom: "20px" }}>
-            {(["student", "institution"] as const).map(r => (
-              <button 
-                type="button"
-                key={r} 
-                onClick={() => setRole(r)} 
-                style={{
-                  flex: 1, padding: "6px 12px", borderRadius: "var(--r-sm)", border: "none", cursor: "pointer",
-                  fontSize: "12px", fontWeight: 500, transition: "all var(--t-fast)",
-                  background: role === r ? "var(--c-surface-3)" : "transparent",
-                  color: role === r ? "var(--c-text-primary)" : "var(--c-text-secondary)"
-                }}
-              >
-                {r.charAt(0).toUpperCase() + r.slice(1)} Portal
-              </button>
-            ))}
           </div>
 
           {/* Form */}

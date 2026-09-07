@@ -31,7 +31,7 @@
   /* Text colors */
   --c-text-primary:   #1E2022; /* Chic charcoal slate */
   --c-text-secondary: #5F666D; /* Warm medium grey */
-  --c-text-tertiary:  #6B7280; /* Muted grey — darkened from #8C939B (~3.1:1) to meet WCAG AA 4.5:1 on white/cream surfaces; the old value was used everywhere for timestamps, labels, and sub-text and failed contrast at the small sizes it's typically set in */
+  --c-text-tertiary:  #5F6673; /* Muted grey — darkened from #8C939B (~3.1:1), then again from #6B7280 (~4.40:1 against --c-surface-0's cream tone, a marginal fail only surfaced once real content — zebra-striped table rows, header bars — actually sat text on that surface instead of plain white) to a value that clears 4.5:1 on both --c-surface-1 (white) and --c-surface-0 (cream); the old value was used everywhere for timestamps, labels, and sub-text */
   --c-text-disabled:  #BDC3C7; /* intentionally low-contrast — only for genuinely disabled controls */
 
   /* Default Accent: Academic Purple */
@@ -296,12 +296,18 @@ body {
   padding: 3px 8px; border-radius: var(--r-md);
   font-size: 11px; font-weight: 500; line-height: 1.2;
 }
-.badge-accent    { background: var(--c-accent-dim); color: var(--c-accent-light); border: 1px solid var(--c-accent-border); }
-.badge-secondary { background: var(--c-secondary-dim); color: var(--c-secondary-light); border: 1px solid var(--c-secondary-border); }
-.badge-orange    { background: var(--c-orange-dim); color: var(--c-orange); border: 1px solid var(--c-orange-border); }
-.badge-green     { background: rgba(34, 197, 94, 0.05); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.15); }
-.badge-red       { background: rgba(239, 68, 68, 0.05);  color: #f87171; border: 1px solid rgba(239, 68, 68, 0.15); }
-.badge-sky       { background: rgba(59, 130, 246, 0.05);  color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.15); }
+/* Text colors below are darkened, WCAG-AA-verified literals, not the raw
+   --c-* accent tokens — those tokens are tuned as bright accents for icons/
+   dark-mode/buttons and fail 4.5:1 as small text on this light background
+   (this is the same systemic gap documented in the FIX 3 contrast pass;
+   these badge classes were missed then because the failure only shows up
+   wherever a page actually uses them, not in the class definition itself). */
+.badge-accent    { background: var(--c-accent-dim); color: var(--c-accent-dark); border: 1px solid var(--c-accent-border); }
+.badge-secondary { background: var(--c-secondary-dim); color: #1D4ED8; border: 1px solid var(--c-secondary-border); }
+.badge-orange    { background: var(--c-orange-dim); color: #B45309; border: 1px solid var(--c-orange-border); }
+.badge-green     { background: rgba(34, 197, 94, 0.05); color: #047857; border: 1px solid rgba(34, 197, 94, 0.15); }
+.badge-red       { background: rgba(239, 68, 68, 0.05);  color: #B91C1C; border: 1px solid rgba(239, 68, 68, 0.15); }
+.badge-sky       { background: rgba(59, 130, 246, 0.05);  color: #1D4ED8; border: 1px solid rgba(59, 130, 246, 0.15); }
 .badge-neutral   { background: rgba(255, 255, 255, 0.03); color: var(--c-text-secondary); border: 1px solid var(--c-border-1); }
 
 /* ─── Navigation ─── */
