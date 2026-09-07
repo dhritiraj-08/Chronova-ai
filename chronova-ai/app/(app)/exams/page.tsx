@@ -142,18 +142,18 @@ export default function ExamsPage() {
 
             // Risk Level Assessment
             let riskLevel: "High" | "Medium" | "Low" = "Low";
-            let riskColor = "var(--c-success)";
+            let riskColor = "#047857";
             let riskBg = "var(--c-success-dim)";
             let riskBorder = "var(--c-success-border)";
 
             if (daysRemaining < remainingChapters || (daysRemaining <= 7 && readiness < 75)) {
               riskLevel = "High";
-              riskColor = "var(--c-danger)";
+              riskColor = "#B91C1C";
               riskBg = "var(--c-danger-dim)";
               riskBorder = "var(--c-danger-border)";
             } else if (readiness < 50 && daysRemaining < 14) {
               riskLevel = "Medium";
-              riskColor = "var(--c-orange)";
+              riskColor = "#B45309";
               riskBg = "var(--c-orange-dim)";
               riskBorder = "var(--c-orange-border)";
             }
@@ -209,7 +209,7 @@ export default function ExamsPage() {
                     </h3>
                     
                     <p style={{ fontSize: "11px", color: "var(--c-text-secondary)", marginTop: "2px" }}>
-                      {exam.date} • <strong style={{ color: daysRemaining <= 3 ? "var(--c-danger)" : "var(--c-text-primary)" }}>{daysRemaining} days left</strong>
+                      {exam.date} • <strong style={{ color: daysRemaining <= 3 ? "#B91C1C" : "var(--c-text-primary)" }}>{daysRemaining} days left</strong>
                     </p>
                   </div>
                 </div>

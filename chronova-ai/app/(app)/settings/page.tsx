@@ -255,7 +255,7 @@ export default function SettingsPage() {
                       fontSize: "12px",
                       fontWeight: 500,
                       cursor: "pointer",
-                      background: studentType === type.id ? "var(--c-accent)" : "var(--c-surface-2)",
+                      background: studentType === type.id ? "var(--c-accent-dark)" : "var(--c-surface-2)",
                       color: studentType === type.id ? "#FFFFFF" : "var(--c-text-secondary)",
                       border: "none",
                       transition: "background-color 150ms ease, color 150ms ease"
@@ -293,7 +293,7 @@ export default function SettingsPage() {
                       fontSize: "12px",
                       fontWeight: 500,
                       cursor: "pointer",
-                      background: preferredStudyStyle === style.id ? "var(--c-accent)" : "var(--c-surface-2)",
+                      background: preferredStudyStyle === style.id ? "var(--c-accent-dark)" : "var(--c-surface-2)",
                       color: preferredStudyStyle === style.id ? "#FFFFFF" : "var(--c-text-secondary)",
                       border: "none",
                       transition: "background-color 150ms ease, color 150ms ease"
@@ -361,7 +361,7 @@ export default function SettingsPage() {
             </p>
             <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginTop: "4px" }}>
               <button className="btn btn-secondary" style={{ fontSize: "12px", padding: "6px 12px" }}>Change Password</button>
-              <button style={{ padding: "6px 12px", borderRadius: "var(--r-md)", background: "rgba(239,68,68,0.05)", border: "1px solid rgba(239,68,68,0.15)", color: "var(--c-danger)", fontSize: "12px", cursor: "pointer", fontWeight: 500 }}>Delete Account</button>
+              <button style={{ padding: "6px 12px", borderRadius: "var(--r-md)", background: "rgba(239,68,68,0.05)", border: "1px solid rgba(239,68,68,0.15)", color: "#B91C1C", fontSize: "12px", cursor: "pointer", fontWeight: 500 }}>Delete Account</button>
             </div>
           </div>
         </div>

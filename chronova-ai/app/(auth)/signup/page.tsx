@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { Mail, Lock, User, Eye, EyeOff, ArrowRight, Globe } from "lucide-react";
+import { Mail, Lock, User, Eye, EyeOff, ArrowRight } from "lucide-react";
 import { Logo } from "@/components/Logo";
 
 export default function SignupPage() {
@@ -17,6 +17,7 @@ export default function SignupPage() {
   const [showPw, setShowPw] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [errorCode, setErrorCode] = useState<string | undefined>(undefined);
   const [role, setRole] = useState<"student" | "institution">("student");
 
   useEffect(() => {
@@ -31,6 +32,7 @@ export default function SignupPage() {
     e.preventDefault();
     setLoading(true);
     setError("");
+    setErrorCode(undefined);
 
     try {
       const res = await fetch("/api/auth/signup", {
@@ -41,6 +43,7 @@ export default function SignupPage() {
       const data = await res.json();
       if (!res.ok || data.error) {
         setError(data.error || "Failed to create account");
+        setErrorCode(data.code);
         setLoading(false);
         return;
       }
@@ -57,13 +60,6 @@ export default function SignupPage() {
       setError(err.message || "An unexpected error occurred.");
       setLoading(false);
     }
-  }
-
-  async function handleGoogle() {
-    await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: { redirectTo: `${window.location.origin}${role === "institution" ? "/admin?role=institution" : "/onboarding?role=student"}` },
-    });
   }
 
   return (
@@ -107,7 +103,7 @@ export default function SignupPage() {
                   flex: 1, padding: "6px 12px", borderRadius: "var(--r-sm)", border: "none", cursor: "pointer",
                   fontSize: "12px", fontWeight: 500, transition: "all var(--t-fast)",
                   background: role === r ? "var(--c-surface-3)" : "transparent",
-                  color: role === r ? "var(--c-text-primary)" : "var(--c-text-tertiary)"
+                  color: role === r ? "var(--c-text-primary)" : "var(--c-text-secondary)"
                 }}
               >
                 {r.charAt(0).toUpperCase() + r.slice(1)} Portal
@@ -115,21 +111,22 @@ export default function SignupPage() {
             ))}
           </div>
 
-          {/* Google Button */}
-          <button
-            onClick={handleGoogle}
-            className="btn btn-secondary"
-            style={{ width: "100%", padding: "10px", marginBottom: "20px", justifyContent: "center", gap: "8px", fontSize: "13px" }}
-          >
-            <Globe size={14} color="var(--c-text-secondary)" />
-            Continue with Google
-          </button>
-
-          <div className="divider-text" style={{ marginBottom: "20px", fontSize: "11px" }}>or continue with email</div>
-
           {/* Form */}
           <form onSubmit={handleSignup} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-            {error && <div className="alert alert-error" style={{ padding: "8px 12px", fontSize: "12px" }}><span>{error}</span></div>}
+            {error && (
+              <div className="alert alert-error" style={{ padding: "8px 12px", fontSize: "12px" }}>
+                {errorCode === "email_exists" ? (
+                  <span>
+                    This email is already registered. Please{" "}
+                    <Link href="/login" style={{ color: "inherit", textDecoration: "underline", fontWeight: 600 }}>
+                      sign in instead
+                    </Link>.
+                  </span>
+                ) : (
+                  <span>{error}</span>
+                )}
+              </div>
+            )}
 
             <div>
               <label className="form-label" htmlFor="signup-name">Full name</label>

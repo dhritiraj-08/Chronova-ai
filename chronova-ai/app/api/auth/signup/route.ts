@@ -23,7 +23,17 @@ export async function POST(request: Request) {
     });
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 400 });
+      const msg = error.message?.toLowerCase() || "";
+      const isDuplicate =
+        (error as any).code === "email_exists" ||
+        msg.includes("already been registered") ||
+        msg.includes("already registered") ||
+        msg.includes("already exists");
+
+      return NextResponse.json(
+        { error: error.message, code: isDuplicate ? "email_exists" : undefined },
+        { status: 400 }
+      );
     }
 
     return NextResponse.json({ success: true, user: data.user });

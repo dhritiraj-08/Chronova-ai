@@ -384,7 +384,7 @@ export default function ChatPage() {
           ? {
               ...c,
               messages: c.messages.map(m => m.id === aiId
-                ? { ...m, content: "Error communicating. Ensure OpenRouter key is configured in settings." }
+                ? { ...m, content: "Error communicating. Ensure the AI Assistant is configured correctly." }
                 : m
               )
             }
@@ -511,7 +511,7 @@ export default function ChatPage() {
             
             <div>
               <p style={{ fontSize: "13px", fontWeight: 700, fontFamily: "var(--font-display)", color: "var(--c-text-primary)", lineHeight: 1.2 }}>AI Academic Mentor</p>
-              <span style={{ fontSize: "9.5px", color: "var(--c-text-tertiary)" }}>Online • Cognitive Study Advisor</span>
+              <span style={{ fontSize: "9.5px", color: "var(--c-text-secondary)" }}>Online • Cognitive Study Advisor</span>
             </div>
           </div>
 
@@ -587,7 +587,7 @@ export default function ChatPage() {
                   <span style={{ fontSize: "12px", fontWeight: 650, color: "var(--c-text-primary)" }}>
                     {msg.role === "assistant" ? "AI Academic Mentor" : "You"}
                   </span>
-                  <span style={{ fontSize: "9px", color: "var(--c-text-tertiary)" }}>
+                  <span style={{ fontSize: "9px", color: "var(--c-text-secondary)" }}>
                     {new Date(msg.time).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}
                   </span>
                 </div>
@@ -698,7 +698,7 @@ export default function ChatPage() {
                                 }
                               }}
                               className="btn btn-primary" 
-                              style={{ fontSize: "11px", padding: "4px 10px", borderRadius: "var(--r-md)", background: "var(--c-accent)", color: "#FFFFFF", borderColor: "var(--c-accent)" }}
+                              style={{ fontSize: "11px", padding: "4px 10px", borderRadius: "var(--r-md)", background: "var(--c-accent-dark)", color: "#FFFFFF", borderColor: "var(--c-accent-dark)" }}
                             >
                               Apply Changes
                             </button>
@@ -828,24 +828,24 @@ export default function ChatPage() {
             <h3 style={{ fontSize: "13px", fontWeight: 600, fontFamily: "var(--font-display)", color: "var(--c-text-primary)" }}>
               Current Context
             </h3>
-            <p style={{ fontSize: "10.5px", color: "var(--c-text-tertiary)", marginTop: "1px" }}>
+            <p style={{ fontSize: "10.5px", color: "var(--c-text-secondary)", marginTop: "1px" }}>
               Active student parameters
             </p>
           </div>
 
           {/* Today's Schedule */}
           <div>
-            <span style={{ fontSize: "9px", fontWeight: 600, textTransform: "uppercase", color: "var(--c-accent-light)", letterSpacing: "0.04em", display: "block", marginBottom: "6px" }}>
+            <span style={{ fontSize: "9px", fontWeight: 600, textTransform: "uppercase", color: "var(--c-accent-dark)", letterSpacing: "0.04em", display: "block", marginBottom: "6px" }}>
               Today's Schedule
             </span>
             <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
               {todayEvents.length === 0 ? (
-                <p style={{ fontSize: "11px", color: "var(--c-text-tertiary)" }}>No sessions today</p>
+                <p style={{ fontSize: "11px", color: "var(--c-text-secondary)" }}>No sessions today</p>
               ) : (
                 todayEvents.map(e => (
                   <div key={e.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "4px 6px", background: "var(--c-surface-1)", borderRadius: "var(--r-sm)", border: "1px solid var(--c-border-1)" }}>
                     <span style={{ fontSize: "11px", color: "var(--c-text-secondary)" }} className="truncate">{e.title}</span>
-                    <span style={{ fontSize: "9.5px", color: "var(--c-text-tertiary)", fontWeight: 600 }}>{fmtHour(e.start)}</span>
+                    <span style={{ fontSize: "9.5px", color: "var(--c-text-secondary)", fontWeight: 600 }}>{fmtHour(e.start)}</span>
                   </div>
                 ))
               )}
@@ -854,17 +854,17 @@ export default function ChatPage() {
 
           {/* Upcoming Exams */}
           <div>
-            <span style={{ fontSize: "9px", fontWeight: 600, textTransform: "uppercase", color: "var(--c-orange)", letterSpacing: "0.04em", display: "block", marginBottom: "6px" }}>
+            <span style={{ fontSize: "9px", fontWeight: 600, textTransform: "uppercase", color: "#B45309", letterSpacing: "0.04em", display: "block", marginBottom: "6px" }}>
               Upcoming Exams
             </span>
             <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
               {exams.length === 0 ? (
-                <p style={{ fontSize: "11px", color: "var(--c-text-tertiary)" }}>No exams scheduled</p>
+                <p style={{ fontSize: "11px", color: "var(--c-text-secondary)" }}>No exams scheduled</p>
               ) : (
                 exams.slice(0, 3).map(ex => (
                   <div key={ex.id} style={{ display: "flex", justifyContent: "space-between", padding: "4px 6px", background: "var(--c-surface-1)", borderRadius: "var(--r-sm)", border: "1px solid var(--c-border-1)" }}>
                     <span style={{ fontSize: "11px", color: "var(--c-text-secondary)" }} className="truncate">{ex.name}</span>
-                    <span style={{ fontSize: "9.5px", color: "var(--c-orange)", fontWeight: 600 }}>{ex.date}</span>
+                    <span style={{ fontSize: "9.5px", color: "#B45309", fontWeight: 600 }}>{ex.date}</span>
                   </div>
                 ))
               )}
@@ -896,7 +896,7 @@ export default function ChatPage() {
 
           {/* Subject Study Progress */}
           <div>
-            <span style={{ fontSize: "9px", fontWeight: 600, textTransform: "uppercase", color: "var(--c-success)", letterSpacing: "0.04em", display: "block", marginBottom: "6px" }}>
+            <span style={{ fontSize: "9px", fontWeight: 600, textTransform: "uppercase", color: "#047857", letterSpacing: "0.04em", display: "block", marginBottom: "6px" }}>
               Study Hours
             </span>
             <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>

@@ -78,7 +78,7 @@ export default function LandingPage() {
           height: "56px",
           display: "flex", alignItems: "center",
           borderBottom: scrolled ? "1px solid var(--c-border-1)" : "1px solid transparent",
-          background: scrolled ? "rgba(15, 17, 23, 0.85)" : "transparent",
+          background: scrolled ? "rgba(253, 251, 247, 0.85)" : "transparent",
           backdropFilter: scrolled ? "blur(8px)" : "none",
           transition: "all var(--t-fast)",
         }}>
@@ -113,7 +113,7 @@ export default function LandingPage() {
             {/* Eyebrow */}
             <div className="animate-up" style={{ marginBottom: "20px" }}>
               <span className="badge badge-secondary" style={{ padding: "4px 10px", fontSize: "11px", border: "1px solid var(--c-secondary-border)" }}>
-                <Sparkles size={11} style={{ marginRight: "3px" }} /> Powered by OpenRouter AI
+                <Sparkles size={11} style={{ marginRight: "3px" }} /> Powered by AI
               </span>
             </div>
 
@@ -367,7 +367,7 @@ export default function LandingPage() {
         <footer style={{ borderTop: "1px solid var(--c-border-1)", padding: "32px 0", background: "var(--c-surface-0)" }}>
           <div className="container" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "16px" }}>
             <Logo size={22} />
-            <p style={{ fontSize: "12px", color: "var(--c-text-tertiary)", fontWeight: 500 }}>
+            <p style={{ fontSize: "12px", color: "var(--c-text-secondary)", fontWeight: 500 }}>
               © 2026 Chronova AI · Built for students everywhere
             </p>
             <div style={{ display: "flex", gap: "4px" }}>

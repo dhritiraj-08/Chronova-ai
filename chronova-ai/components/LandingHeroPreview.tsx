@@ -145,7 +145,7 @@ export function LandingHeroPreview() {
                   transition: "width 0.5s ease"
                 }} />
               </div>
-              <span style={{ fontSize: "11px", color: "var(--c-accent)", fontWeight: 600 }}>
+              <span style={{ fontSize: "11px", color: "#2563EB", fontWeight: 600 }}>
                 {Math.round((activeStep + 1) * 25)}%
               </span>
             </div>
@@ -168,7 +168,7 @@ export function LandingHeroPreview() {
               }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
                   <span style={{ fontSize: "12px", fontWeight: 600, color: "var(--c-text-primary)" }}>Mathematics</span>
-                  <span style={{ fontSize: "9px", padding: "2px 6px", borderRadius: "999px", background: "var(--c-accent-dim)", color: "var(--c-accent)" }}>Study</span>
+                  <span style={{ fontSize: "9px", padding: "2px 6px", borderRadius: "999px", background: "var(--c-accent-dim)", color: "#2563EB" }}>Study</span>
                 </div>
                 <span style={{ fontSize: "10.5px", color: "var(--c-text-tertiary)" }}>07:00 – 08:30</span>
               </div>
@@ -184,7 +184,7 @@ export function LandingHeroPreview() {
               }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
                   <span style={{ fontSize: "12px", fontWeight: 600, color: "var(--c-text-primary)" }}>College Classes</span>
-                  <span style={{ fontSize: "9px", padding: "2px 6px", borderRadius: "999px", background: "rgba(56,189,248,0.1)", color: "#38bdf8" }}>Class</span>
+                  <span style={{ fontSize: "9px", padding: "2px 6px", borderRadius: "999px", background: "rgba(56,189,248,0.1)", color: "#0369A1" }}>Class</span>
                 </div>
                 <span style={{ fontSize: "10.5px", color: "var(--c-text-tertiary)" }}>09:00 – 15:00</span>
               </div>
@@ -201,9 +201,9 @@ export function LandingHeroPreview() {
                 alignItems: "center",
                 gap: "8px"
               }}>
-                <Clock size={12} color="#22c55e" />
+                <Clock size={12} color="#15803D" />
                 <div>
-                  <p style={{ fontSize: "11.5px", fontWeight: 600, color: "#22c55e" }}>Mindful Break</p>
+                  <p style={{ fontSize: "11.5px", fontWeight: 600, color: "#15803D" }}>Mindful Break</p>
                   <p style={{ fontSize: "10px", color: "var(--c-text-tertiary)" }}>15:00 – 15:30</p>
                 </div>
               </div>
@@ -224,7 +224,7 @@ export function LandingHeroPreview() {
               }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
                   <span style={{ fontSize: "12px", fontWeight: 600, color: "var(--c-text-primary)" }}>Physics</span>
-                  <span style={{ fontSize: "9px", padding: "2px 6px", borderRadius: "999px", background: "var(--c-accent-dim)", color: "var(--c-accent)" }}>Study</span>
+                  <span style={{ fontSize: "9px", padding: "2px 6px", borderRadius: "999px", background: "var(--c-accent-dim)", color: "#2563EB" }}>Study</span>
                 </div>
                 <span style={{ fontSize: "10.5px", color: "var(--c-text-tertiary)" }}>07:00 – 08:30</span>
               </div>
@@ -240,7 +240,7 @@ export function LandingHeroPreview() {
               }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
                   <span style={{ fontSize: "12px", fontWeight: 600, color: "var(--c-text-primary)" }}>College Classes</span>
-                  <span style={{ fontSize: "9px", padding: "2px 6px", borderRadius: "999px", background: "rgba(56,189,248,0.1)", color: "#38bdf8" }}>Class</span>
+                  <span style={{ fontSize: "9px", padding: "2px 6px", borderRadius: "999px", background: "rgba(56,189,248,0.1)", color: "#0369A1" }}>Class</span>
                 </div>
                 <span style={{ fontSize: "10.5px", color: "var(--c-text-tertiary)" }}>09:00 – 15:00</span>
               </div>
@@ -256,7 +256,7 @@ export function LandingHeroPreview() {
               }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
                   <span style={{ fontSize: "12px", fontWeight: 600, color: "var(--c-text-primary)" }}>Chemistry</span>
-                  <span style={{ fontSize: "9px", padding: "2px 6px", borderRadius: "999px", background: "var(--c-accent-dim)", color: "var(--c-accent)" }}>Study</span>
+                  <span style={{ fontSize: "9px", padding: "2px 6px", borderRadius: "999px", background: "var(--c-accent-dim)", color: "#2563EB" }}>Study</span>
                 </div>
                 <span style={{ fontSize: "10.5px", color: "var(--c-text-tertiary)" }}>15:30 – 17:00</span>
               </div>
@@ -277,7 +277,7 @@ export function LandingHeroPreview() {
               }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
                   <span style={{ fontSize: "12px", fontWeight: 600, color: "var(--c-text-primary)" }}>Mathematics</span>
-                  <span style={{ fontSize: "9px", padding: "2px 6px", borderRadius: "999px", background: "var(--c-accent-dim)", color: "var(--c-accent)" }}>Study</span>
+                  <span style={{ fontSize: "9px", padding: "2px 6px", borderRadius: "999px", background: "var(--c-accent-dim)", color: "#2563EB" }}>Study</span>
                 </div>
                 <span style={{ fontSize: "10.5px", color: "var(--c-text-tertiary)" }}>07:00 – 08:30</span>
               </div>
@@ -293,7 +293,7 @@ export function LandingHeroPreview() {
               }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
                   <span style={{ fontSize: "12px", fontWeight: 600, color: "var(--c-text-primary)" }}>College Classes</span>
-                  <span style={{ fontSize: "9px", padding: "2px 6px", borderRadius: "999px", background: "rgba(56,189,248,0.1)", color: "#38bdf8" }}>Class</span>
+                  <span style={{ fontSize: "9px", padding: "2px 6px", borderRadius: "999px", background: "rgba(56,189,248,0.1)", color: "#0369A1" }}>Class</span>
                 </div>
                 <span style={{ fontSize: "10.5px", color: "var(--c-text-tertiary)" }}>09:00 – 15:00</span>
               </div>
@@ -312,7 +312,7 @@ export function LandingHeroPreview() {
               }}>
                 <ShieldAlert size={12} color="var(--c-accent)" />
                 <div>
-                  <p style={{ fontSize: "11.5px", fontWeight: 600, color: "var(--c-accent)" }}>Rest (Protected)</p>
+                  <p style={{ fontSize: "11.5px", fontWeight: 600, color: "#2563EB" }}>Rest (Protected)</p>
                   <p style={{ fontSize: "10px", color: "var(--c-text-tertiary)" }}>15:00 – 16:30</p>
                 </div>
               </div>

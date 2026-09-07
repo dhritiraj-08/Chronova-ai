@@ -168,7 +168,7 @@ export default function Sidebar() {
               {!collapsed && (
                 <p style={{
                   fontSize: "9px", fontWeight: 600, letterSpacing: "0.05em",
-                  textTransform: "uppercase", color: "var(--c-text-tertiary)",
+                  textTransform: "uppercase", color: "var(--c-text-secondary)",
                   padding: "0 6px", marginBottom: "2px"
                 }}>{label}</p>
               )}
@@ -275,7 +275,7 @@ export default function Sidebar() {
               gap: "8px",
               background: "transparent", border: "none", cursor: "pointer",
               borderRadius: "var(--r-md)", transition: "all var(--t-fast)",
-              color: "var(--c-text-tertiary)", fontSize: "12.5px",
+              color: "var(--c-text-secondary)", fontSize: "12.5px",
             }}
             onMouseEnter={e => {
               (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.02)";
@@ -283,7 +283,7 @@ export default function Sidebar() {
             }}
             onMouseLeave={e => {
               (e.currentTarget as HTMLElement).style.background = "transparent";
-              (e.currentTarget as HTMLElement).style.color = "var(--c-text-tertiary)";
+              (e.currentTarget as HTMLElement).style.color = "var(--c-text-secondary)";
             }}
           >
             {collapsed ? <ChevronRight size={14} /> : <><ChevronLeft size={14} /><span>Collapse</span></>}

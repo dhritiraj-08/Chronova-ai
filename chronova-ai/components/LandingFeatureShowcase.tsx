@@ -46,13 +46,13 @@ export function LandingFeatureShowcase() {
           flexDirection: "column",
           gap: "12px"
         }}>
-          <div style={{ alignSelf: "flex-end", background: "var(--c-accent)", color: "white", padding: "8px 14px", borderRadius: "12px 12px 2px 12px", fontSize: "12.5px", maxWidth: "80%", boxShadow: "0 4px 12px var(--c-accent-glow)" }}>
+          <div style={{ alignSelf: "flex-end", background: "#2563EB", color: "white", padding: "8px 14px", borderRadius: "12px 12px 2px 12px", fontSize: "12.5px", maxWidth: "80%", boxShadow: "0 4px 12px var(--c-accent-glow)" }}>
             I missed my Physics slot today and I have a chemistry test tomorrow. What do I do?
           </div>
           <div style={{ alignSelf: "flex-start", background: "var(--c-surface-1)", border: "1px solid var(--c-border-1)", color: "var(--c-text-primary)", padding: "12px 16px", borderRadius: "12px 12px 12px 2px", fontSize: "12.5px", maxWidth: "85%", display: "flex", gap: "10px", alignItems: "flex-start" }}>
             <span style={{ fontSize: "16px", marginTop: "-2px" }}>🤖</span>
             <div>
-              <p style={{ fontWeight: 700, color: "var(--c-accent-light)", marginBottom: "3px" }}>Coach</p>
+              <p style={{ fontWeight: 700, color: "#2563EB", marginBottom: "3px" }}>Coach</p>
               <p style={{ color: "var(--c-text-secondary)", lineHeight: 1.55 }}>
                 Understood. I've automatically postponed today's Physics session to Friday afternoon. Tonight's slots have been swapped entirely to Chemistry focus with a built-in active recall quiz slot.
               </p>
@@ -142,7 +142,7 @@ export function LandingFeatureShowcase() {
           padding: "18px",
           marginTop: "20px"
         }}>
-          <div style={{ display: "flex", justifyContent: "space-between", fontSize: "12px", color: "var(--c-text-secondary)", marginBottom: "8px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", fontSize: "12px", color: "rgba(255,255,255,0.65)", marginBottom: "8px" }}>
             <span>Weekly Study Hours</span>
             <span style={{ fontWeight: 700, color: "var(--c-accent-light)" }}>28.5h / 30h</span>
           </div>
@@ -150,7 +150,7 @@ export function LandingFeatureShowcase() {
             <div style={{ background: "linear-gradient(90deg, var(--c-accent), var(--c-secondary))", height: "100%", width: "95%" }} />
           </div>
 
-          <div style={{ display: "flex", justifyContent: "space-between", fontSize: "12px", color: "var(--c-text-secondary)" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", fontSize: "12px", color: "rgba(255,255,255,0.65)" }}>
             <span>Syllabus Covered</span>
             <span style={{ fontWeight: 700, color: "var(--c-secondary-light)" }}>72%</span>
           </div>
@@ -192,7 +192,7 @@ export function LandingFeatureShowcase() {
           gap: "10px"
         }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", fontSize: "12px", borderBottom: "1px solid var(--c-border-1)", paddingBottom: "8px" }}>
-            <span style={{ color: "var(--c-text-secondary)", fontWeight: 500 }}>Batch 12-A Timetable</span>
+            <span style={{ color: "rgba(255,255,255,0.65)", fontWeight: 500 }}>Batch 12-A Timetable</span>
             <span style={{ color: "var(--c-success)", fontWeight: 700, fontSize: "11.5px", display: "flex", alignItems: "center", gap: "4px" }}>
               <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "var(--c-success)", display: "inline-block", boxShadow: "0 0 8px var(--c-success)" }} />
               Conflict free
@@ -202,14 +202,14 @@ export function LandingFeatureShowcase() {
           <div style={{ display: "flex", gap: "8px" }}>
             <div style={{ flex: 1, background: "var(--c-surface-2)", border: "1px solid var(--c-border-1)", borderRadius: "8px", padding: "8px 10px", fontSize: "11px" }}>
               <p style={{ fontWeight: 600, color: "var(--c-text-primary)" }}>Period 1</p>
-              <p style={{ color: "var(--c-text-tertiary)", marginTop: "2px" }}>Math · Rm 104</p>
+              <p style={{ color: "var(--c-text-secondary)", marginTop: "2px" }}>Math · Rm 104</p>
             </div>
             <div style={{ flex: 1, background: "var(--c-surface-2)", border: "1px solid var(--c-border-1)", borderRadius: "8px", padding: "8px 10px", fontSize: "11px" }}>
               <p style={{ fontWeight: 600, color: "var(--c-text-primary)" }}>Period 2</p>
-              <p style={{ color: "var(--c-text-tertiary)", marginTop: "2px" }}>Physics · Lab A</p>
+              <p style={{ color: "var(--c-text-secondary)", marginTop: "2px" }}>Physics · Lab A</p>
             </div>
             <div style={{ flex: 1, background: "var(--c-surface-2)", border: "1px dashed var(--c-border-2)", borderRadius: "8px", padding: "8px 10px", fontSize: "11px", display: "flex", flexDirection: "column", justifyContent: "center" }}>
-              <p style={{ fontWeight: 600, color: "var(--c-secondary-light)" }}>Break</p>
+              <p style={{ fontWeight: 600, color: "#1D4ED8" }}>Break</p>
             </div>
           </div>
         </div>

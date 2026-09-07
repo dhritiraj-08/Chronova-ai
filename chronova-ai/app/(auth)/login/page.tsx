@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { Mail, Lock, Eye, EyeOff, ArrowRight, Globe } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, ArrowRight } from "lucide-react";
 import { Logo } from "@/components/Logo";
 
 export default function LoginPage() {
@@ -75,13 +75,6 @@ export default function LoginPage() {
     }
   }
 
-  async function handleGoogle() {
-    await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: { redirectTo: `${window.location.origin}${role === "institution" ? "/admin?role=institution" : "/dashboard?role=student"}` },
-    });
-  }
-
   return (
     <div style={{ display: "flex", minHeight: "100vh" }} className="page-bg animate-fade">
       <div className="page-content" style={{ display: "flex", width: "100%", minHeight: "100vh" }}>
@@ -122,25 +115,13 @@ export default function LoginPage() {
                   flex: 1, padding: "6px 12px", borderRadius: "var(--r-sm)", border: "none", cursor: "pointer",
                   fontSize: "12px", fontWeight: 500, transition: "all var(--t-fast)",
                   background: role === r ? "var(--c-surface-3)" : "transparent",
-                  color: role === r ? "var(--c-text-primary)" : "var(--c-text-tertiary)"
+                  color: role === r ? "var(--c-text-primary)" : "var(--c-text-secondary)"
                 }}
               >
                 {r.charAt(0).toUpperCase() + r.slice(1)} Portal
               </button>
             ))}
           </div>
-
-          {/* Google Button */}
-          <button
-            onClick={handleGoogle}
-            className="btn btn-secondary"
-            style={{ width: "100%", padding: "10px", marginBottom: "20px", justifyContent: "center", gap: "8px", fontSize: "13px" }}
-          >
-            <Globe size={14} color="var(--c-text-secondary)" />
-            Continue with Google
-          </button>
-
-          <div className="divider-text" style={{ marginBottom: "20px", fontSize: "11px" }}>or continue with email</div>
 
           {/* Form */}
           <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>

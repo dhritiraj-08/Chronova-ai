@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
 
     if (!apiKey) {
       // Fallback response if OPENROUTER_API_KEY is not configured
-      const fallbackMsg = "Hi! I am Chronova, your AI Coach. I'm currently running in demo mode (OpenRouter API key is not configured in .env.local). " +
+      const fallbackMsg = "Hi! I am Chronova, your AI Coach. I'm currently running in demo mode (the AI service isn't configured yet). " +
         "Keep sticking to your schedule, take regular breaks, and protect your sleep. You've got this!";
       return new Response(fallbackMsg, {
         headers: { "Content-Type": "text/plain; charset=utf-8" },
@@ -195,7 +195,7 @@ CHATBOT PERSONALITY INSTRUCTIONS:
     console.error("OpenRouter Chat API error:", error);
     
     // Friendly fallback response on API call failure
-    const fallbackText = "I'm having trouble connecting to my OpenRouter brain right now. But remember: 'Consistency is key. Focus on your upcoming study slot, respect your rest periods, and tackle one subject at a time. You've got this!'";
+    const fallbackText = "I'm having trouble connecting right now. But remember: 'Consistency is key. Focus on your upcoming study slot, respect your rest periods, and tackle one subject at a time. You've got this!'";
     return new Response(fallbackText, {
       headers: { "Content-Type": "text/plain; charset=utf-8" },
     });

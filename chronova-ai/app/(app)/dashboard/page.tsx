@@ -145,7 +145,7 @@ export default function DashboardPage() {
               <Brain size={14} color="var(--c-accent)" />
             </div>
             <div>
-              <p style={{ fontSize: "9.5px", fontWeight: 700, color: "var(--c-accent)", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+              <p style={{ fontSize: "9.5px", fontWeight: 700, color: "var(--c-accent-dark)", textTransform: "uppercase", letterSpacing: "0.08em" }}>
                 Circadian Coach Recommendation
               </p>
               <p style={{ fontSize: "12.5px", color: "var(--c-text-secondary)", marginTop: "2px", lineHeight: 1.45 }}>
@@ -252,7 +252,7 @@ export default function DashboardPage() {
                           borderRadius: "var(--r-sm)",
                           borderColor: "var(--c-orange-border)",
                           background: "var(--c-orange-dim)",
-                          color: "var(--c-orange)",
+                          color: "#B45309",
                           cursor: "pointer"
                         }}
                       >
@@ -338,7 +338,7 @@ export default function DashboardPage() {
                       }} />
                       <div>
                         <p style={{ fontSize: "12.5px", fontWeight: 650, color: ev.done ? "var(--c-text-tertiary)" : "var(--c-text-primary)", textDecoration: ev.done ? "line-through" : "none" }}>
-                          {ev.title} {active && <span style={{ fontSize: "8.5px", background: "var(--c-accent-dim)", border: "1px solid var(--c-accent-border)", color: "var(--c-accent)", padding: "1px 5px", borderRadius: "4px", marginLeft: "6px", fontWeight: 700 }}>Active</span>}
+                          {ev.title} {active && <span style={{ fontSize: "8.5px", background: "var(--c-accent-dim)", border: "1px solid var(--c-accent-border)", color: "var(--c-accent-dark)", padding: "1px 5px", borderRadius: "4px", marginLeft: "6px", fontWeight: 700 }}>Active</span>}
                         </p>
                         <p style={{ fontSize: "11px", color: "var(--c-text-tertiary)", marginTop: "1px" }}>
                           {fmtHour(ev.start)} ({Math.round((ev.end - ev.start) * 60)}m)
@@ -491,7 +491,7 @@ export default function DashboardPage() {
                     <badge.icon size={12} color={badge.active ? badge.color : "var(--c-text-tertiary)"} />
                   </div>
                   <p style={{ fontSize: "11.5px", fontWeight: 700, color: "var(--c-text-primary)" }}>{badge.title}</p>
-                  <p style={{ fontSize: "9px", color: "var(--c-text-tertiary)", lineHeight: 1.2 }}>{badge.desc}</p>
+                  <p style={{ fontSize: "9px", color: "var(--c-text-secondary)", lineHeight: 1.2 }}>{badge.desc}</p>
                 </div>
               ))}
             </div>
@@ -614,8 +614,8 @@ function FocusTimer({
           position: "absolute", inset: "0 0 auto 0", background: "var(--c-accent-dim)",
           borderBottom: "1px solid var(--c-accent-border)", padding: "8px 12px", zIndex: 10, display: "flex", gap: "4px", alignItems: "center"
         }} className="animate-up">
-          <Sparkles size={12} color="var(--c-accent-light)" />
-          <span style={{ fontSize: "11px", fontWeight: 600, color: "var(--c-accent-light)" }}>{completedBanner}</span>
+          <Sparkles size={12} color="var(--c-accent-dark)" />
+          <span style={{ fontSize: "11px", fontWeight: 600, color: "var(--c-accent-dark)" }}>{completedBanner}</span>
         </div>
       )}
 
@@ -629,7 +629,7 @@ function FocusTimer({
 
         <div style={{ position: "absolute", display: "flex", flexDirection: "column", alignItems: "center" }}>
           <span style={{ fontSize: "16px", fontWeight: 700, fontFamily: "var(--font-display)", color: "var(--c-text-primary)", letterSpacing: "-0.01em" }}>{timeStr}</span>
-          <span style={{ fontSize: "8px", textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600, color: isBreakMode ? "var(--c-success)" : "var(--c-accent-light)" }}>
+          <span style={{ fontSize: "8px", textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600, color: isBreakMode ? "#047857" : "var(--c-accent-dark)" }}>
             {isBreakMode ? "Break" : "Focus"}
           </span>
         </div>

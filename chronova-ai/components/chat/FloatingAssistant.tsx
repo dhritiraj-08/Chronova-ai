@@ -180,7 +180,7 @@ export default function FloatingAssistant() {
     } catch {
       setMessages(prev => {
         const updated = prev.map(m => m.id === aiId
-          ? { ...m, content: "I couldn't connect to my AI brain. Please check your network or OpenRouter API key configuration in `.env.local`." }
+          ? { ...m, content: "I couldn't connect to my AI brain. Please check your network connection or try again in a moment." }
           : m
         );
         localStorage.setItem("chronova_quick_chat", JSON.stringify(updated));

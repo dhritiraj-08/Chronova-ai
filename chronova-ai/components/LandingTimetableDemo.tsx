@@ -84,7 +84,7 @@ export function LandingTimetableDemo() {
             fontWeight: 600,
             textTransform: "uppercase",
             letterSpacing: "0.08em",
-            color: "var(--c-accent)",
+            color: "#2563EB",
             marginBottom: "8px",
             display: "block"
           }}>
@@ -136,7 +136,7 @@ export function LandingTimetableDemo() {
               <RefreshCw size={16} color="var(--c-accent)" className={isSimulating && demoState === "initial" ? "spin" : ""} />
               <div>
                 <p style={{ fontSize: "13px", fontWeight: 600 }}>1. Generate Timetable</p>
-                <p style={{ fontSize: "11px", color: "var(--c-text-tertiary)", marginTop: "2px" }}>Auto-arrange pending subjects</p>
+                <p style={{ fontSize: "11px", color: "var(--c-text-secondary)", marginTop: "2px" }}>Auto-arrange pending subjects</p>
               </div>
             </button>
 
@@ -166,7 +166,7 @@ export function LandingTimetableDemo() {
               <Brain size={16} color="#22c55e" />
               <div>
                 <p style={{ fontSize: "13px", fontWeight: 600 }}>2. Balance Productivity</p>
-                <p style={{ fontSize: "11px", color: "var(--c-text-tertiary)", marginTop: "2px" }}>Shorten slots & insert breaks</p>
+                <p style={{ fontSize: "11px", color: "var(--c-text-secondary)", marginTop: "2px" }}>Shorten slots & insert breaks</p>
               </div>
             </button>
 
@@ -196,7 +196,7 @@ export function LandingTimetableDemo() {
               <Moon size={16} color="var(--c-orange)" />
               <div>
                 <p style={{ fontSize: "13px", fontWeight: 600 }}>3. Simulate 'I am tired'</p>
-                <p style={{ fontSize: "11px", color: "var(--c-text-tertiary)", marginTop: "2px" }}>Enforce burnout protection</p>
+                <p style={{ fontSize: "11px", color: "var(--c-text-secondary)", marginTop: "2px" }}>Enforce burnout protection</p>
               </div>
             </button>
           </div>
@@ -215,7 +215,7 @@ export function LandingTimetableDemo() {
             gap: "6px",
             background: "none",
             border: "none",
-            color: "var(--c-text-tertiary)",
+            color: "var(--c-text-secondary)",
             cursor: "pointer",
             fontSize: "12px",
             alignSelf: "flex-start",
@@ -223,7 +223,7 @@ export function LandingTimetableDemo() {
             borderRadius: "6px"
           }}
           onMouseEnter={e => e.currentTarget.style.color = "var(--c-text-secondary)"}
-          onMouseLeave={e => e.currentTarget.style.color = "var(--c-text-tertiary)"}
+          onMouseLeave={e => e.currentTarget.style.color = "var(--c-text-secondary)"}
         >
           <RefreshCw size={12} /> Reset Sandbox
         </button>
@@ -265,7 +265,7 @@ export function LandingTimetableDemo() {
           position: "relative"
         }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
-            <span style={{ fontSize: "11px", fontWeight: 700, color: "var(--c-text-tertiary)", display: "flex", alignItems: "center", gap: "4px" }}>
+            <span style={{ fontSize: "11px", fontWeight: 700, color: "var(--c-text-secondary)", display: "flex", alignItems: "center", gap: "4px" }}>
               <CalendarRange size={12} /> Live Timeline Simulation
             </span>
             <span style={{
@@ -322,12 +322,12 @@ export function LandingTimetableDemo() {
                     padding: "2px 6px",
                     borderRadius: "4px",
                     background: block.type === "study" && demoState !== "initial" ? "var(--c-accent-dim)" : block.type === "break" ? "rgba(34, 197, 94, 0.15)" : block.type === "rest" ? "var(--c-orange-dim)" : "var(--c-surface-3)",
-                    color: block.type === "study" && demoState !== "initial" ? "var(--c-accent)" : block.type === "break" ? "#22c55e" : block.type === "rest" ? "var(--c-orange)" : "var(--c-text-tertiary)"
+                    color: block.type === "study" && demoState !== "initial" ? "#2563EB" : block.type === "break" ? "#15803D" : block.type === "rest" ? "#B45309" : "#4B5563"
                   }}>
                     {block.type}
                   </span>
                 </div>
-                <span style={{ fontSize: "10.5px", color: "var(--c-text-tertiary)", marginTop: "2px" }}>
+                <span style={{ fontSize: "10.5px", color: "var(--c-text-secondary)", marginTop: "2px" }}>
                   {block.time}
                 </span>
               </div>

@@ -413,20 +413,20 @@ export default function ProgressPage() {
                   const score = Math.round(getSubjectMastery(subject));
                   let label = "Review Needed";
                   let tagColor = "rgba(239, 68, 68, 0.08)";
-                  let tagText = "var(--c-danger)";
-                  
+                  let tagText = "#B91C1C";
+
                   if (score >= 80) {
                     label = "Confident";
                     tagColor = "var(--c-success-dim)";
-                    tagText = "var(--c-success)";
+                    tagText = "#047857";
                   } else if (score >= 60) {
                     label = "Comfortable";
                     tagColor = "var(--c-accent-dim)";
-                    tagText = "var(--c-accent)";
+                    tagText = "var(--c-accent-dark)";
                   } else if (score >= 45) {
                     label = "Developing";
                     tagColor = "rgba(249, 115, 22, 0.08)";
-                    tagText = "var(--c-orange)";
+                    tagText = "#B45309";
                   }
 
                   return (
@@ -581,7 +581,7 @@ export default function ProgressPage() {
                       {ach.unlocked && <span style={{ width: "5px", height: "5px", borderRadius: "50%", background: "var(--c-success)" }} />}
                     </div>
                     <p style={{ fontSize: "11px", color: "var(--c-text-secondary)", lineHeight: 1.3 }}>{ach.desc}</p>
-                    <span style={{ fontSize: "9.5px", color: "var(--c-text-tertiary)", fontWeight: 500, marginTop: "4px" }}>
+                    <span style={{ fontSize: "9.5px", color: "var(--c-text-secondary)", fontWeight: 500, marginTop: "4px" }}>
                       Progress: {ach.progress}
                     </span>
                   </div>

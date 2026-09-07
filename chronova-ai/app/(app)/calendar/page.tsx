@@ -15,13 +15,17 @@ const HOUR_HEIGHT = 64;
 const START_HOUR = 6;
 
 // Refined Category color mapping
+// `text` is used as the event title's text color on the light calendar grid, so
+// each one is a darker, WCAG AA-safe shade of its hue (verified >=4.5:1 on the
+// grid's cream background) — `dot`/`bg`/`border` stay as the original bright
+// swatch colors since those are only ever used decoratively, not as text.
 const SUBJECT_COLORS = [
-  { name: "Study (Math/Science)", bg: "rgba(139, 92, 246, 0.04)", border: "rgba(139, 92, 246, 0.12)", dot: "#8B5CF6", text: "#A78BFA" }, // Purple
-  { name: "Exam Milestone",       bg: "rgba(239, 68, 68, 0.04)",  border: "rgba(239, 68, 68, 0.12)",  dot: "#EF4444",  text: "#FCA5A5" }, // Red
-  { name: "College/Classes",     bg: "rgba(59, 130, 246, 0.04)", border: "rgba(59, 130, 246, 0.12)", dot: "#3B82F6", text: "#60A5FA" }, // Blue
-  { name: "Revision Slot",       bg: "rgba(249, 115, 22, 0.04)", border: "rgba(249, 115, 22, 0.12)", dot: "#F97316", text: "#FDBA74" }, // Orange
-  { name: "Gym & Workout",       bg: "rgba(34, 197, 94, 0.04)",  border: "rgba(34, 197, 94, 0.12)",  dot: "#22C55E", text: "#86EFAC" }, // Green
-  { name: "Personal/Hobby",      bg: "rgba(168, 162, 158, 0.04)", border: "rgba(168, 162, 158, 0.12)", dot: "#A8A29E", text: "#E7E5E4" } // Stone (Muted grey)
+  { name: "Study (Math/Science)", bg: "rgba(139, 92, 246, 0.04)", border: "rgba(139, 92, 246, 0.12)", dot: "#8B5CF6", text: "#7C3AED" }, // Purple
+  { name: "Exam Milestone",       bg: "rgba(239, 68, 68, 0.04)",  border: "rgba(239, 68, 68, 0.12)",  dot: "#EF4444",  text: "#DC2626" }, // Red
+  { name: "College/Classes",     bg: "rgba(59, 130, 246, 0.04)", border: "rgba(59, 130, 246, 0.12)", dot: "#3B82F6", text: "#1D4ED8" }, // Blue
+  { name: "Revision Slot",       bg: "rgba(249, 115, 22, 0.04)", border: "rgba(249, 115, 22, 0.12)", dot: "#F97316", text: "#B45309" }, // Orange
+  { name: "Gym & Workout",       bg: "rgba(34, 197, 94, 0.04)",  border: "rgba(34, 197, 94, 0.12)",  dot: "#22C55E", text: "#15803D" }, // Green
+  { name: "Personal/Hobby",      bg: "rgba(168, 162, 158, 0.04)", border: "rgba(168, 162, 158, 0.12)", dot: "#A8A29E", text: "#57534E" } // Stone (Muted grey)
 ];
 
 function fmtHour(h: number) {
@@ -529,21 +533,21 @@ export default function CalendarPage() {
 
             return (
               <div key={day} style={{ padding: "8px 6px", textAlign: "center", borderLeft: "1px solid var(--c-border-1)" }}>
-                <p style={{ fontSize: "9px", color: isToday ? "var(--c-accent)" : "var(--c-text-tertiary)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                <p style={{ fontSize: "9px", color: isToday ? "var(--c-accent-dark)" : "var(--c-text-secondary)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em" }}>
                   {day}
                 </p>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", marginTop: "2px" }}>
-                  <span style={{ fontSize: "14px", fontWeight: 750, color: isToday ? "var(--c-accent)" : "var(--c-text-primary)" }}>
+                  <span style={{ fontSize: "14px", fontWeight: 750, color: isToday ? "var(--c-accent-dark)" : "var(--c-text-primary)" }}>
                     {colDate.getDate()}
                   </span>
                   {totalHrs > 0 && (
-                    <span style={{ fontSize: "9px", background: completedHrs === totalHrs ? "var(--c-success-dim)" : "var(--c-surface-2)", color: completedHrs === totalHrs ? "var(--c-success)" : "var(--c-text-secondary)", border: "1px solid " + (completedHrs === totalHrs ? "var(--c-success-border)" : "var(--c-border-1)"), padding: "1px 4px", borderRadius: "3px", fontWeight: 700 }}>
+                    <span style={{ fontSize: "9px", background: completedHrs === totalHrs ? "var(--c-success-dim)" : "var(--c-surface-2)", color: completedHrs === totalHrs ? "#047857" : "var(--c-text-secondary)", border: "1px solid " + (completedHrs === totalHrs ? "var(--c-success-border)" : "var(--c-border-1)"), padding: "1px 4px", borderRadius: "3px", fontWeight: 700 }}>
                       {completedHrs.toFixed(0)}/{totalHrs.toFixed(0)}h
                     </span>
                   )}
                 </div>
                 {dayExams.map(ex => (
-                  <div key={ex.id} style={{ display: "inline-flex", background: "var(--c-danger-dim)", color: "var(--c-danger)", border: "1px solid var(--c-danger-border)", padding: "1px 4px", borderRadius: "3px", fontSize: "8.5px", fontWeight: 700, marginTop: "4px" }} title={ex.name}>
+                  <div key={ex.id} style={{ display: "inline-flex", background: "var(--c-danger-dim)", color: "#B91C1C", border: "1px solid var(--c-danger-border)", padding: "1px 4px", borderRadius: "3px", fontSize: "8.5px", fontWeight: 700, marginTop: "4px" }} title={ex.name}>
                     🚩 Exam
                   </div>
                 ))}
@@ -560,7 +564,7 @@ export default function CalendarPage() {
             <div style={{ background: "rgba(255,255,255,0.005)" }}>
               {HOURS.map(h => (
                 <div key={h} style={{ height: `${HOUR_HEIGHT}px`, display: "flex", alignItems: "flex-start", paddingTop: "6px", paddingRight: "8px", justifyContent: "flex-end" }}>
-                  <span style={{ fontSize: "9.5px", color: "var(--c-text-tertiary)", fontWeight: 500 }}>
+                  <span style={{ fontSize: "9.5px", color: "var(--c-text-secondary)", fontWeight: 500 }}>
                     {h > 12 ? `${h - 12}pm` : h === 12 ? "12pm" : `${h}am`}
                   </span>
                 </div>
@@ -626,7 +630,7 @@ export default function CalendarPage() {
                             {ev.done ? "✓ " : ""}{ev.title}
                           </p>
                           {height > 32 && (
-                            <p style={{ fontSize: "9px", color: "var(--c-text-tertiary)", marginTop: "1px" }}>
+                            <p style={{ fontSize: "9px", color: "var(--c-text-secondary)", marginTop: "1px" }}>
                               {fmtHour(ev.start)} – {fmtHour(ev.end)}
                             </p>
                           )}
